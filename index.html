@@ -24,6 +24,53 @@
         object-fit: contain; /* Affiche l'image entière (pas de crop) */
     }
 </style>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      background-color: white;
+      border-radius: 12px;
+      padding: 30px;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    h1 {
+      color: #2c3e50;
+      font-size: 2em;
+      margin-bottom: 0.5em;
+    }
+
+    p {
+      color: #555;
+      font-size: 1.1em;
+    }
+
+    @media (max-width: 400px) {
+      .container {
+        padding: 20px;
+      }
+
+      h1 {
+        font-size: 1.5em;
+      }
+
+      p {
+        font-size: 1em;
+      }
+    }
+  </style>
 </head>
 <body>
     <div class="search-box">
