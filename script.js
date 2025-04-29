@@ -37,6 +37,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // Affichage des suggestions d’autocomplétion
   function displayAutocomplete(products) {
     const suggestions = new Set();
+item.addEventListener('click', () => {
+  searchInput.value = name;
+  autocompleteBox.innerHTML = '';
+  autocompleteBox.style.display = 'none';
+  searchInput.dispatchEvent(new Event('input'));
+});
 
     products.forEach(product => {
       if (product.name) suggestions.add(product.name);
@@ -61,6 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     autocompleteBox.style.display = 'block';
+    autocompleteBox.style.display = 'none';
   }
 
   // Affichage des résultats dans le tableau
