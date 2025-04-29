@@ -33,6 +33,7 @@ h1 {
   position: relative;
   max-width: 600px;
   margin: 0 auto 30px;
+  margin-bottom: 60px; /* <-- Ajoute ou augmente cette ligne */
 }
 
 #search {
@@ -280,3 +281,4 @@ footer {
 .rating-options input[type="radio"] {
   margin: 0;
 }
+
