@@ -244,3 +244,39 @@ footer {
 .fas {
   font-size: 1rem;
 }
+/* ... (conservez les styles précédents) ... */
+
+/* Notation santé */
+.rating-icon {
+  font-size: 1.5rem;
+}
+
+.green {
+  color: #2ecc71;
+}
+
+.orange {
+  color: #f39c12;
+}
+
+.red {
+  color: #e74c3c;
+}
+
+/* Options de notation */
+.rating-options {
+  display: flex;
+  gap: 20px;
+  margin-top: 10px;
+}
+
+.rating-options label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.rating-options input[type="radio"] {
+  margin: 0;
+}
