@@ -8,14 +8,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const autocompleteBox = document.getElementById('autocomplete-results');
   const searchIcon = document.getElementById('search-icon');
 
-  // Positionner la boîte d'autocomplete
-  function positionAutocompleteBox() {
-    const inputRect = searchInput.getBoundingClientRect();
-    autocompleteBox.style.top = `${inputRect.bottom + window.scrollY}px`;
-    autocompleteBox.style.left = `${inputRect.left + window.scrollX}px`;
-    autocompleteBox.style.width = `${inputRect.width}px`;
-  }
-
+  // Remplacez la fonction positionAutocompleteBox par :
+function positionAutocompleteBox() {
+  const inputRect = searchInput.getBoundingClientRect();
+  autocompleteBox.style.top = `${inputRect.height}px`; // Juste en dessous de l'input
+  autocompleteBox.style.left = '0';
+  autocompleteBox.style.width = '100%';
+}
+searchInput.addEventListener('focus', positionAutocompleteBox);
   // Recherche de produits
   searchInput.addEventListener('input', debounce(async (e) => {
     const term = e.target.value.trim();

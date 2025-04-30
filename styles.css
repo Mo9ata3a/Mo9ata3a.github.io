@@ -60,6 +60,7 @@ main {
   position: relative;
   max-width: 800px;
   margin: 0 auto;
+  z-index: 1001; /* Ajoutez cette ligne */
 }
 
 #search {
@@ -90,16 +91,18 @@ main {
 /* Autocomplete */
 #autocomplete-results {
   position: absolute;
+  top: 100%; /* S'affiche juste en dessous de l'input */
+  left: 0;
   width: 100%;
   max-height: 300px;
   overflow-y: auto;
   background: white;
-  border: 1px solid var(--medium-gray);
-  border-radius: 0 0 10px 10px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-  z-index: 1000;
+  border: 1px solid #ddd;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  z-index: 1002; /* Au-dessus des autres éléments */
   display: none;
-  margin-top: -1px;
 }
 
 .autocomplete-item {
@@ -149,12 +152,9 @@ main {
 
 /* Résultats */
 #results-container {
-  display: none;
-  margin: 2rem auto;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 20px rgba(0,0,0,0.08);
-  overflow: hidden;
+  position: relative;
+  z-index: 1000; /* En dessous de l'autocomplete */
+  margin-top: 20px; /* Espace entre la recherche et les résultats */
 }
 
 #results {
