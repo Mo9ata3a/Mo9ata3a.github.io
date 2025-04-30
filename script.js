@@ -7,10 +7,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const contributionForm = document.getElementById('contribution-form');
   const autocompleteBox = document.getElementById('autocomplete-results');
 
-  // Search products
+  // Positionner la boîte d'autocomplete
+  function positionAutocompleteBox() {
+    const inputRect = searchInput.getBoundingClientRect();
+    autocompleteBox.style.top = `${inputRect.bottom + window.scrollY}px`;
+    autocompleteBox.style.left = `${inputRect.left + window.scrollX}px`;
+    autocompleteBox.style.width = `${inputRect.width}px`;
+  }
+
+  // Recherche de produits
   searchInput.addEventListener('input', async (e) => {
     const term = e.target.value.trim();
-    autocompleteBox.innerHTML = '';
     autocompleteBox.style.display = 'none';
     resultsTable.innerHTML = '';
     resultsContainer.style.display = 'none';
@@ -38,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Display autocomplete suggestions
+  // Affichage des suggestions d'autocomplétion
   function displayAutocomplete(products) {
     const suggestions = new Set();
 
@@ -51,15 +58,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (suggestions.size === 0) return;
 
+    autocompleteBox.innerHTML = '';
+    positionAutocompleteBox();
+
     suggestions.forEach(name => {
       const item = document.createElement('div');
       item.className = 'autocomplete-item';
       item.textContent = name;
       item.addEventListener('click', () => {
         searchInput.value = name;
-        autocompleteBox.innerHTML = '';
         autocompleteBox.style.display = 'none';
-        searchInput.dispatchEvent(new Event('input'));
+        searchInput.focus();
+        searchInput.dispatchEvent(new Event('input', { bubbles: true }));
       });
       autocompleteBox.appendChild(item);
     });
@@ -67,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
     autocompleteBox.style.display = 'block';
   }
 
-  // Display search results
+  // Affichage des résultats dans le tableau
   function displayResults(products) {
     resultsTable.innerHTML = '';
     let hasResults = false;
@@ -97,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Handle contribution form
+  // Gestion du formulaire de contribution
   contributionForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -109,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
       altImage: document.getElementById('alt-image').value.trim()
     };
 
-    // Basic validation
+    // Validation de base
     if (!formData.productName || !formData.altName || !formData.rating) {
       showAlert('Veuillez remplir tous les champs obligatoires', 'warning');
       return;
@@ -135,19 +145,32 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Show alert messages
+  // Affichage des messages d'alerte
   function showAlert(message, type) {
     alertDiv.textContent = message;
     alertDiv.className = `alert alert-${type}`;
     alertDiv.style.display = 'block';
+    alertDiv.style.opacity = '1';
+    
     setTimeout(() => {
-      alertDiv.style.opacity = '1';
+      alertDiv.style.opacity = '0';
       setTimeout(() => {
-        alertDiv.style.opacity = '0';
-        setTimeout(() => {
-          alertDiv.style.display = 'none';
-        }, 300);
-      }, 2700);
-    }, 0);
+        alertDiv.style.display = 'none';
+      }, 300);
+    }, 2700);
   }
+
+  // Cacher l'autocomplete quand on clique ailleurs
+  document.addEventListener('click', (e) => {
+    if (e.target !== searchInput && !autocompleteBox.contains(e.target)) {
+      autocompleteBox.style.display = 'none';
+    }
+  });
+
+  // Recalculer la position de l'autocomplete en cas de scroll
+  window.addEventListener('scroll', () => {
+    if (autocompleteBox.style.display === 'block') {
+      positionAutocompleteBox();
+    }
+  });
 });
