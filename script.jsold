@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const contributionForm = document.getElementById('contribution-form');
   const autocompleteBox = document.getElementById('autocomplete-results');
 
-  // Search products
+  // Recherche de produits
   searchInput.addEventListener('input', async (e) => {
     const term = e.target.value.trim();
     autocompleteBox.innerHTML = '';
@@ -19,9 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       const response = await fetch(`${API_URL}/api/products/search/${term}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
       const data = await response.json();
 
       if (data.error) {
@@ -33,14 +30,19 @@ document.addEventListener('DOMContentLoaded', () => {
       displayResults(data);
 
     } catch (error) {
-      console.error('Search error:', error);
       showAlert('Erreur de connexion à l\'API', 'error');
     }
   });
 
-  // Display autocomplete suggestions
+  // Affichage des suggestions d’autocomplétion
   function displayAutocomplete(products) {
     const suggestions = new Set();
+item.addEventListener('click', () => {
+  searchInput.value = name;
+  autocompleteBox.innerHTML = '';
+  autocompleteBox.style.display = 'none';
+  searchInput.dispatchEvent(new Event('input'));
+});
 
     products.forEach(product => {
       if (product.name) suggestions.add(product.name);
@@ -65,9 +67,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     autocompleteBox.style.display = 'block';
+    autocompleteBox.style.display = 'none';
   }
 
-  // Display search results
+  // Affichage des résultats dans le tableau
   function displayResults(products) {
     resultsTable.innerHTML = '';
     let hasResults = false;
@@ -78,9 +81,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const row = document.createElement('tr');
 
         row.innerHTML = `
-          <td><img src="${alt.image || 'https://via.placeholder.com/50'}" alt="${alt.name}" onerror="this.src='https://via.placeholder.com/50'"></td>
+          <td><img src="${alt.image || 'placeholder.jpg'}" alt="${alt.name}"></td>
           <td>${alt.name}</td>
-          <td>${alt.description || 'No description available'}</td>
+          <td>${alt.description}</td>
           <td><span class="rating ${alt.rating}">
             ${alt.rating === 'green' ? '👍' : alt.rating === 'orange' ? '🟠' : '👎'}
           </span></td>
@@ -92,28 +95,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (hasResults) {
       resultsContainer.style.display = 'table';
-    } else {
-      showAlert('Aucun résultat trouvé', 'info');
     }
   }
 
-  // Handle contribution form
+  // Gestion du formulaire de contribution
   contributionForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const formData = {
-      productName: document.getElementById('product-name').value.trim(),
-      altName: document.getElementById('alt-name').value.trim(),
-      altDesc: document.getElementById('alt-desc').value.trim(),
-      rating: document.querySelector('input[name="rating"]:checked')?.value,
-      altImage: document.getElementById('alt-image').value.trim()
+      productName: document.getElementById('product-name').value,
+      altName: document.getElementById('alt-name').value,
+      altDesc: document.getElementById('alt-desc').value,
+      rating: document.querySelector('input[name="rating"]:checked').value,
+      altImage: document.getElementById('alt-image').value
     };
-
-    // Basic validation
-    if (!formData.productName || !formData.altName || !formData.rating) {
-      showAlert('Veuillez remplir tous les champs obligatoires', 'warning');
-      return;
-    }
 
     try {
       const response = await fetch(`${API_URL}/api/contribute`, {
@@ -122,32 +117,22 @@ document.addEventListener('DOMContentLoaded', () => {
         body: JSON.stringify(formData)
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
       const result = await response.json();
       showAlert(result.message || 'Soumission réussie !', 'success');
       contributionForm.reset();
     } catch (error) {
-      console.error('Submission error:', error);
       showAlert('Erreur lors de l\'envoi', 'error');
     }
   });
 
-  // Show alert messages
+  // Affichage des messages d'alerte
   function showAlert(message, type) {
     alertDiv.textContent = message;
     alertDiv.className = `alert alert-${type}`;
     alertDiv.style.display = 'block';
     setTimeout(() => {
-      alertDiv.style.opacity = '1';
-      setTimeout(() => {
-        alertDiv.style.opacity = '0';
-        setTimeout(() => {
-          alertDiv.style.display = 'none';
-        }, 300);
-      }, 2700);
-    }, 0);
+      alertDiv.className = 'alert';
+      alertDiv.style.display = 'none';
+    }, 3000);
   }
 });
