@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const API_URL = 'https://mon-rdepq3uwl-kamilis-projects-0f8aed8e.vercel.app';
+  const API_URL = 'https://mon-api-three.vercel.app';
   const searchInput = document.getElementById('search');
   const resultsTable = document.querySelector('#results tbody');
   const resultsContainer = document.getElementById('results-container');
