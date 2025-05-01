@@ -60,7 +60,9 @@
     position: relative;
     max-width: 800px;
     margin: 0 auto;
-    z-index: 1001; /* Ajoutez cette ligne */
+    display: flex;
+    align-items: center;
+    width: 100%;
   }
   
   #search {
@@ -88,10 +90,25 @@
     cursor: pointer;
   }
   
+  #selected-product-image {
+    width: 30px;
+    height: 30px;
+    margin-left: 10px;
+    border-radius: 4px;
+    overflow: hidden;
+    display: none;
+  }
+  
+  #selected-product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
   /* Autocomplete */
   #autocomplete-results {
     position: absolute;
-    top: 100%; /* S'affiche juste en dessous de l'input */
+    top: calc(100% + 2px);
     left: 0;
     width: 100%;
     max-height: 300px;
@@ -101,18 +118,52 @@
     border-top: none;
     border-radius: 0 0 8px 8px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    z-index: 1002; /* Au-dessus des autres éléments */
+    z-index: 1000;
     display: none;
+    margin-top: 0;
   }
   
   .autocomplete-item {
-    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
     cursor: pointer;
     transition: background 0.2s;
+    gap: 10px;
   }
   
   .autocomplete-item:hover {
     background-color: var(--light-gray);
+  }
+  
+  .autocomplete-img {
+    width: 30px;
+    height: 30px;
+    object-fit: cover;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  
+  .autocomplete-name {
+    flex-grow: 1;
+  }
+  
+  .ban-status-icon {
+    flex-shrink: 0;
+    width: 20px;
+    text-align: center;
+  }
+  
+  .green-icon {
+    color: var(--success-color);
+  }
+  
+  .red-icon {
+    color: var(--error-color);
+  }
+  
+  .orange-icon {
+    color: var(--warning-color);
   }
   
   /* Alertes */
@@ -152,9 +203,7 @@
   
   /* Résultats */
   #results-container {
-    position: relative;
-    z-index: 1000; /* En dessous de l'autocomplete */
-    margin-top: 20px; /* Espace entre la recherche et les résultats */
+    margin-top: 20px;
   }
   
   #results {
@@ -343,111 +392,3 @@
       font-size: 1rem;
     }
   }
-
-.autocomplete-item {
-    display: flex;
-    align-items: center;
-    padding: 8px 12px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    gap: 10px;
-}
-
-.autocomplete-item:hover {
-    background-color: #f5f5f5;
-}
-
-.autocomplete-img {
-    width: 30px;
-    height: 30px;
-    object-fit: cover;
-    border-radius: 4px;
-    flex-shrink: 0;
-}
-.autocomplete-item {
-    display: flex;
-    align-items: center;
-    padding: 8px 12px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    justify-content: space-between;
-}
-
-.autocomplete-img {
-    width: 30px;
-    height: 30px;
-    object-fit: cover;
-    border-radius: 4px;
-    margin-right: 10px;
-}
-
-.autocomplete-name {
-    flex-grow: 1;
-    margin-right: 10px;
-}
-
-.ban-status-icon {
-    width: 20px;
-    text-align: center;
-}
-
-.green-icon {
-    color: #28a745;
-}
-
-.red-icon {
-    color: #dc3545;
-}
-
-.orange-icon {
-    color: #fd7e14;
-}
-#selected-product-image {
-    width: 30px;
-    height: 30px;
-    margin-left: 10px;
-    border-radius: 4px;
-    overflow: hidden;
-    display: none; /* Caché par défaut */
-}
-
-#selected-product-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.search-wrapper {
-    display: flex;
-    align-items: center;
-    position: relative;
-}
-
-.search-wrapper {
-    position: relative; /* Nécessaire pour le positionnement absolu des enfants */
-    width: 100%; /* Prend toute la largeur disponible */
-}
-
-.autocomplete-results {
-    position: absolute;
-    z-index: 1000;
-    background: white;
-    border: 1px solid #ddd;
-    border-top: none;
-    border-radius: 0 0 4px 4px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    max-height: 300px;
-    overflow-y: auto;
-    margin: 0; /* Reset des marges */
-    padding: 0; /* Reset des paddings */
-    left: 0 !important; /* Forçage de l'alignement */
-}
-.search-wrapper {
-    line-height: 0; /* Élimine l'espace des éléments inline */
-    font-size: 0; /* Supprime l'espace résiduel du texte */
-}
-
-.search-wrapper > * {
-    line-height: normal; /* Réinitialise pour les enfants */
-    font-size: 16px; /* Taille de police normale */
-}

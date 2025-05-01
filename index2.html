@@ -18,9 +18,9 @@
   <main>
     
     <div class="search-container">
-        <div class="search-wrapper">
+        <div class="search-wrapper" style="position: relative;"> <!-- Ajout explicite -->
           <input type="text" id="search" placeholder="Ex: Coca-Cola, Nutella..." 
-                 aria-label="Rechercher un produit" autocomplete="off">
+                 style="width: 100%; box-sizing: border-box;"> <!-- Largeur cohérente -->
           <div id="selected-product-image"></div>
           <div id="search-icon"><i class="fas fa-search"></i></div>
           <div id="autocomplete-results" class="autocomplete-results"></div>

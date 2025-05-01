@@ -34,18 +34,20 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // Positionnement de l'autocomplete
-
   function positionAutocompleteBox() {
-    const searchWrapper = searchInput.closest('.search-wrapper');
-    const wrapperRect = searchWrapper.getBoundingClientRect();
+    const inputRect = searchInput.getBoundingClientRect();
+    const wrapper = searchInput.parentElement;
+    const wrapperStyle = window.getComputedStyle(wrapper);
+    
+    // Calculer la position en prenant en compte les bordures et paddings
+    const leftPosition = inputRect.left - parseFloat(wrapperStyle.paddingLeft);
     
     autocompleteBox.style.position = 'absolute';
-    autocompleteBox.style.top = `${wrapperRect.bottom}px`;
-    autocompleteBox.style.left = `${wrapperRect.left}px`;
-    autocompleteBox.style.width = `${wrapperRect.width}px`;
-    autocompleteBox.style.boxSizing = 'border-box';
+    autocompleteBox.style.top = `${inputRect.bottom + window.scrollY - 5}px`; // Réduction de l'espace
+    autocompleteBox.style.left = `${leftPosition}px`;
+    autocompleteBox.style.width = `${inputRect.width}px`;
+    autocompleteBox.style.marginTop = '2px'; // Espace minimal
 }
-
 
 
   
@@ -375,6 +377,16 @@ document.addEventListener('DOMContentLoaded', () => {
     searchInput.focus();
   });
 
-  window.addEventListener('resize', debounce(positionAutocompleteBox, 100));
-  window.addEventListener('scroll', debounce(positionAutocompleteBox, 100));
+
+  function handleWindowResize() {
+    positionAutocompleteBox();
+    // Force un recalcul après le redimensionnement
+    setTimeout(positionAutocompleteBox, 100);
+}
+
+window.addEventListener('resize', debounce(handleWindowResize, 50));
+window.addEventListener('scroll', debounce(handleWindowResize, 50));
+
+
+
 });
