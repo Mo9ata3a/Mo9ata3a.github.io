@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://mon-api-three.vercel.app; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' https://images.unsplash.com data:; font-src 'self' https://cdnjs.cloudflare.com;">
+  <title>Alternatives Saines</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>Recherche de Produits / Marques</h1>
+    <p class="subtitle">Trouvez des alternatives plus saines</p>
+  </header>
+
+  <main>
+    <div class="search-container">
+      <div class="search-wrapper">
+        <input type="text" id="search" placeholder="Ex: Coca-Cola, Nutella..." 
+               aria-label="Rechercher un produit" autocomplete="off">
+        <div id="search-icon"><i class="fas fa-search"></i></div>
+        <div id="autocomplete-results" class="autocomplete-results"></div>
+      </div>
+    </div>
+
+    <div id="alert" role="alert" aria-live="polite"></div>
+
+    <div id="results-container">
+      <table id="results">
+        <thead>
+          <tr>
+            <th scope="col">Image</th>
+            <th scope="col">Alternative</th>
+            <th scope="col">Description</th>
+            <th scope="col">Santé</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="contribution-form">
+      <h2><i class="fas fa-plus-circle"></i> Proposer une alternative</h2>
+      <form id="contribution-form">
+        <div class="form-group">
+          <label for="product-name">Produit original :</label>
+          <input type="text" id="product-name" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="alt-name">Alternative :</label>
+          <input type="text" id="alt-name" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="alt-desc">Description :</label>
+          <textarea id="alt-desc" required></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label>Note santé :</label>
+          <div class="rating-options">
+            <label>
+              <input type="radio" name="rating" value="green" required>
+              <i class="fas fa-thumbs-up green"></i> Bonne
+            </label>
+            <label>
+              <input type="radio" name="rating" value="orange">
+              <i class="fas fa-circle orange"></i> Moyenne
+            </label>
+            <label>
+              <input type="radio" name="rating" value="red">
+              <i class="fas fa-thumbs-down red"></i> Mauvaise
+            </label>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="alt-image">Image (URL) :</label>
+          <input type="url" id="alt-image" placeholder="https://...">
+        </div>
+        
+        <button type="submit"><i class="fas fa-paper-plane"></i> Soumettre</button>
+      </form>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2023 Alternatives Saines</p>
+  </footer>
+
+  <script src="script2.js" defer></script>
+</body>
+</html>
+
