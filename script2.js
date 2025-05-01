@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const contributionForm = document.getElementById('contribution-form');
   const autocompleteBox = document.getElementById('autocomplete-results');
   const searchIcon = document.getElementById('search-icon');
-  const PLACEHOLDER_IMAGE = 'https://via.placeholder.com/50';
+  const PLACEHOLDER_IMAGE = 'https://placehold.co/50';
   
   // Cache simple pour stocker les résultats de recherche
   const searchCache = new Map();
