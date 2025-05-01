@@ -106,50 +106,65 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  // Affichage des suggestions d'autocomplétion avec images
   function displayAutocomplete(products) {
-    const suggestions = new Map(); // Utilisation d'une Map pour associer noms et images
+    const suggestions = new Map(); // Map pour associer noms, images et statuts ban
 
     products.forEach(product => {
-      if (product.name) {
-        suggestions.set(product.name, product.photo_url || PLACEHOLDER_IMAGE);
-      }
-      product.alternatives?.forEach(alt => {
-        if (alt.name) {
-          suggestions.set(alt.name, alt.image || PLACEHOLDER_IMAGE);
+        if (product.name) {
+            suggestions.set(product.name, {
+                image: product.photo_url || PLACEHOLDER_IMAGE,
+                banStatus: product.ban // Accès direct au champ ban
+            });
         }
-      });
+        product.alternatives?.forEach(alt => {
+            if (alt.name) {
+                suggestions.set(alt.name, {
+                    image: alt.image || PLACEHOLDER_IMAGE,
+                    banStatus: alt.ban // Supposant que les alternatives ont aussi le champ ban
+                });
+            }
+        });
     });
 
     if (suggestions.size === 0) {
-      hideAutocomplete();
-      return;
+        hideAutocomplete();
+        return;
     }
 
     autocompleteBox.innerHTML = '';
     positionAutocompleteBox();
 
     Array.from(suggestions.entries())
-      .slice(0, MAX_AUTOCOMPLETE_ITEMS)
-      .forEach(([name, imageUrl]) => {
-        const item = document.createElement('div');
-        item.className = 'autocomplete-item';
-        item.innerHTML = `
-          <img src="${imageUrl}" alt="${name}" 
-               onerror="this.src='${PLACEHOLDER_IMAGE}'" 
-               class="autocomplete-img">
-          <span>${escapeHtml(name)}</span>
-        `;
-        item.tabIndex = 0;
-        item.addEventListener('click', () => selectAutocompleteItem(name));
-        item.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter') selectAutocompleteItem(name);
+        .slice(0, MAX_AUTOCOMPLETE_ITEMS)
+        .forEach(([name, {image, banStatus}]) => {
+            const item = document.createElement('div');
+            item.className = 'autocomplete-item';
+            
+            item.innerHTML = `
+                <img src="${image}" alt="${name}" 
+                     onerror="this.src='${PLACEHOLDER_IMAGE}'" 
+                     class="autocomplete-img">
+                <span class="autocomplete-name">${escapeHtml(name)}</span>
+                <span class="ban-status-icon">${getBanStatusIcon(banStatus)}</span>
+            `;
+            
+            item.addEventListener('click', () => selectAutocompleteItem(name));
+            autocompleteBox.appendChild(item);
         });
-        autocompleteBox.appendChild(item);
-      });
 
     autocompleteBox.style.display = 'block';
+}
+
+// Ajoutez cette fonction pour générer l'icône de statut
+function getBanStatusIcon(banStatus) {
+  if (banStatus === false) {
+      return '<i class="fas fa-thumbs-up green-icon" title="Produit autorisé"></i>';
+  } else if (banStatus === true) {
+      return '<i class="fas fa-thumbs-down red-icon" title="Produit interdit"></i>';
+  } else {
+      return '<i class="fas fa-circle orange-icon" title="Statut inconnu"></i>';
   }
+}
 
   function selectAutocompleteItem(name) {
     searchInput.value = name;
