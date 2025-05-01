@@ -442,3 +442,12 @@
     padding: 0; /* Reset des paddings */
     left: 0 !important; /* Forçage de l'alignement */
 }
+.search-wrapper {
+    line-height: 0; /* Élimine l'espace des éléments inline */
+    font-size: 0; /* Supprime l'espace résiduel du texte */
+}
+
+.search-wrapper > * {
+    line-height: normal; /* Réinitialise pour les enfants */
+    font-size: 16px; /* Taille de police normale */
+}
