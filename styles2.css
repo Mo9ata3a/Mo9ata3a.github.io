@@ -343,7 +343,7 @@
       font-size: 1rem;
     }
   }
-  
+
 .autocomplete-item {
     display: flex;
     align-items: center;
@@ -363,4 +363,42 @@
     object-fit: cover;
     border-radius: 4px;
     flex-shrink: 0;
+}
+.autocomplete-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    justify-content: space-between;
+}
+
+.autocomplete-img {
+    width: 30px;
+    height: 30px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-right: 10px;
+}
+
+.autocomplete-name {
+    flex-grow: 1;
+    margin-right: 10px;
+}
+
+.ban-status-icon {
+    width: 20px;
+    text-align: center;
+}
+
+.green-icon {
+    color: #28a745;
+}
+
+.red-icon {
+    color: #dc3545;
+}
+
+.orange-icon {
+    color: #fd7e14;
 }
