@@ -423,4 +423,22 @@
     position: relative;
 }
 
-/* Autres styles existants... */
+.search-wrapper {
+    position: relative; /* Nécessaire pour le positionnement absolu des enfants */
+    width: 100%; /* Prend toute la largeur disponible */
+}
+
+.autocomplete-results {
+    position: absolute;
+    z-index: 1000;
+    background: white;
+    border: 1px solid #ddd;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    max-height: 300px;
+    overflow-y: auto;
+    margin: 0; /* Reset des marges */
+    padding: 0; /* Reset des paddings */
+    left: 0 !important; /* Forçage de l'alignement */
+}

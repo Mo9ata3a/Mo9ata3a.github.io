@@ -34,13 +34,21 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // Positionnement de l'autocomplete
-  function positionAutocompleteBox() {
-    const inputRect = searchInput.getBoundingClientRect();
-    autocompleteBox.style.top = `${inputRect.bottom}px`;
-    autocompleteBox.style.left = `${inputRect.left}px`;
-    autocompleteBox.style.width = `${inputRect.width}px`;
-  }
 
+  function positionAutocompleteBox() {
+    const searchWrapper = searchInput.closest('.search-wrapper');
+    const wrapperRect = searchWrapper.getBoundingClientRect();
+    
+    autocompleteBox.style.position = 'absolute';
+    autocompleteBox.style.top = `${wrapperRect.bottom}px`;
+    autocompleteBox.style.left = `${wrapperRect.left}px`;
+    autocompleteBox.style.width = `${wrapperRect.width}px`;
+    autocompleteBox.style.boxSizing = 'border-box';
+}
+
+
+
+  
   // Recherche de produits avec debounce
   const performSearch = debounce(async (term) => {
     if (term.length === 0) {
