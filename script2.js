@@ -8,16 +8,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const autocompleteBox = document.getElementById('autocomplete-results');
   const searchIcon = document.getElementById('search-icon');
   const PLACEHOLDER_IMAGE = 'https://placehold.co/50';
-  
-  // Création de l'élément pour l'image sélectionnée
-  const selectedProductImage = document.createElement('div');
-  selectedProductImage.id = 'selected-product-image';
-  searchInput.parentNode.insertBefore(selectedProductImage, searchIcon);
+
+  // Utiliser l'élément déjà présent dans le HTML
+  const selectedProductImage = document.getElementById('selected-product-image');
 
   // Cache simple pour stocker les résultats de recherche
   const searchCache = new Map();
-  
-  // Configuration des délais
+
+  // Configuration des délais...
   const DEBOUNCE_DELAY = 300;
   const ALERT_DISPLAY_TIME = 5000;
   const MIN_SEARCH_LENGTH = 2;
@@ -33,24 +31,6 @@ document.addEventListener('DOMContentLoaded', () => {
     submitBtn: contributionForm.querySelector('button')
   };
 
-  // Positionnement de l'autocomplete
-  function positionAutocompleteBox() {
-    const inputRect = searchInput.getBoundingClientRect();
-    const wrapper = searchInput.parentElement;
-    const wrapperStyle = window.getComputedStyle(wrapper);
-    
-    // Calculer la position en prenant en compte les bordures et paddings
-    const leftPosition = inputRect.left - parseFloat(wrapperStyle.paddingLeft);
-    
-    autocompleteBox.style.position = 'absolute';
-    autocompleteBox.style.top = `${inputRect.bottom + window.scrollY - 5}px`; // Réduction de l'espace
-    autocompleteBox.style.left = `${leftPosition}px`;
-    autocompleteBox.style.width = `${inputRect.width}px`;
-    autocompleteBox.style.marginTop = '2px'; // Espace minimal
-}
-
-
-  
   // Recherche de produits avec debounce
   const performSearch = debounce(async (term) => {
     if (term.length === 0) {
@@ -73,13 +53,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       setLoadingState(true);
-      
+
       const response = await fetch(`${API_URL}/api/products/search/${encodeURIComponent(term)}`);
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
 
       if (data.error) {
@@ -89,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Mettre en cache les résultats
       searchCache.set(term, data);
-      
+
       displayAutocomplete(data);
       displayResults(data);
 
@@ -130,58 +110,57 @@ document.addEventListener('DOMContentLoaded', () => {
     const suggestions = new Map(); // Map pour associer noms, images et statuts ban
 
     products.forEach(product => {
-        if (product.name) {
-            suggestions.set(product.name, {
-                image: product.photo_url || PLACEHOLDER_IMAGE,
-                banStatus: product.ban
-            });
-        }
-        product.alternatives?.forEach(alt => {
-            if (alt.name) {
-                suggestions.set(alt.name, {
-                    image: alt.image || PLACEHOLDER_IMAGE,
-                    banStatus: alt.ban
-                });
-            }
+      if (product.name) {
+        suggestions.set(product.name, {
+          image: product.photo_url || PLACEHOLDER_IMAGE,
+          banStatus: product.ban
         });
+      }
+      product.alternatives?.forEach(alt => {
+        if (alt.name) {
+          suggestions.set(alt.name, {
+            image: alt.image || PLACEHOLDER_IMAGE,
+            banStatus: alt.ban
+          });
+        }
+      });
     });
 
     if (suggestions.size === 0) {
-        hideAutocomplete();
-        return;
+      hideAutocomplete();
+      return;
     }
 
     autocompleteBox.innerHTML = '';
-    positionAutocompleteBox();
 
     Array.from(suggestions.entries())
-        .slice(0, MAX_AUTOCOMPLETE_ITEMS)
-        .forEach(([name, {image, banStatus}]) => {
-            const item = document.createElement('div');
-            item.className = 'autocomplete-item';
-            
-            item.innerHTML = `
-                <img src="${image}" alt="${name}" 
-                     onerror="this.src='${PLACEHOLDER_IMAGE}'" 
-                     class="autocomplete-img">
-                <span class="autocomplete-name">${escapeHtml(name)}</span>
-                <span class="ban-status-icon">${getBanStatusIcon(banStatus)}</span>
-            `;
-            
-            item.addEventListener('click', () => selectAutocompleteItem(name, image));
-            autocompleteBox.appendChild(item);
-        });
+      .slice(0, MAX_AUTOCOMPLETE_ITEMS)
+      .forEach(([name, { image, banStatus }]) => {
+        const item = document.createElement('div');
+        item.className = 'autocomplete-item';
+
+        item.innerHTML = `
+          <img src="${image}" alt="${name}" 
+               onerror="this.src='${PLACEHOLDER_IMAGE}'" 
+               class="autocomplete-img">
+          <span class="autocomplete-name">${escapeHtml(name)}</span>
+          <span class="ban-status-icon">${getBanStatusIcon(banStatus)}</span>
+        `;
+
+        item.addEventListener('click', () => selectAutocompleteItem(name, image));
+        autocompleteBox.appendChild(item);
+      });
 
     autocompleteBox.style.display = 'block';
   }
 
   function getBanStatusIcon(banStatus) {
     if (banStatus === false) {
-        return '<i class="fas fa-thumbs-up green-icon" title="Produit autorisé"></i>';
+      return '<i class="fas fa-thumbs-up green-icon" title="Produit autorisé"></i>';
     } else if (banStatus === true) {
-        return '<i class="fas fa-thumbs-down red-icon" title="Produit interdit"></i>';
+      return '<i class="fas fa-thumbs-down red-icon" title="Produit interdit"></i>';
     } else {
-        return '<i class="fas fa-circle orange-icon" title="Statut inconnu"></i>';
+      return '<i class="fas fa-circle orange-icon" title="Statut inconnu"></i>';
     }
   }
 
@@ -189,15 +168,15 @@ document.addEventListener('DOMContentLoaded', () => {
     searchInput.value = name;
     hideAutocomplete();
     searchInput.focus();
-    
+
     // Afficher l'image sélectionnée
     if (imageUrl) {
-        selectedProductImage.innerHTML = `<img src="${imageUrl}" alt="${name}" onerror="this.style.display='none'">`;
-        selectedProductImage.style.display = 'block';
+      selectedProductImage.innerHTML = `<img src="${imageUrl}" alt="${name}" onerror="this.style.display='none'">`;
+      selectedProductImage.style.display = 'block';
     } else {
-        selectedProductImage.style.display = 'none';
+      selectedProductImage.style.display = 'none';
     }
-    
+
     searchInput.dispatchEvent(new Event('input', { bubbles: true }));
   }
 
@@ -274,7 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const response = await fetch(`${API_URL}/api/contribute`, {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
@@ -340,8 +319,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function setFormLoadingState(isLoading) {
     formElements.submitBtn.disabled = isLoading;
-    formElements.submitBtn.innerHTML = isLoading 
-      ? '<i class="fas fa-spinner fa-spin"></i> Envoi...' 
+    formElements.submitBtn.innerHTML = isLoading
+      ? '<i class="fas fa-spinner fa-spin"></i> Envoi...'
       : '<i class="fas fa-paper-plane"></i> Soumettre';
   }
 
@@ -351,7 +330,7 @@ document.addEventListener('DOMContentLoaded', () => {
     alertDiv.className = `alert alert-${type}`;
     alertDiv.style.display = 'block';
     alertDiv.style.opacity = '1';
-    
+
     setTimeout(() => {
       alertDiv.style.opacity = '0';
       setTimeout(() => {
@@ -365,7 +344,8 @@ document.addEventListener('DOMContentLoaded', () => {
     performSearch(e.target.value.trim());
   });
 
-  searchInput.addEventListener('focus', positionAutocompleteBox);
+  // Plus besoin de repositionner l'autocomplete en JS
+  // searchInput.addEventListener('focus', positionAutocompleteBox);
 
   document.addEventListener('click', (e) => {
     if (!searchInput.contains(e.target) && !autocompleteBox.contains(e.target)) {
@@ -377,16 +357,7 @@ document.addEventListener('DOMContentLoaded', () => {
     searchInput.focus();
   });
 
-
-  function handleWindowResize() {
-    positionAutocompleteBox();
-    // Force un recalcul après le redimensionnement
-    setTimeout(positionAutocompleteBox, 100);
-}
-
-window.addEventListener('resize', debounce(handleWindowResize, 50));
-window.addEventListener('scroll', debounce(handleWindowResize, 50));
-
-
-
+  // Plus besoin de gérer resize/scroll pour l'autocomplete
+  // window.addEventListener('resize', debounce(handleWindowResize, 50));
+  // window.addEventListener('scroll', debounce(handleWindowResize, 50));
 });
