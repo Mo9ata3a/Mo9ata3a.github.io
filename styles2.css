@@ -402,3 +402,25 @@
 .orange-icon {
     color: #fd7e14;
 }
+#selected-product-image {
+    width: 30px;
+    height: 30px;
+    margin-left: 10px;
+    border-radius: 4px;
+    overflow: hidden;
+    display: none; /* Caché par défaut */
+}
+
+#selected-product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.search-wrapper {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+/* Autres styles existants... */

@@ -9,6 +9,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const searchIcon = document.getElementById('search-icon');
   const PLACEHOLDER_IMAGE = 'https://placehold.co/50';
   
+  // Création de l'élément pour l'image sélectionnée
+  const selectedProductImage = document.createElement('div');
+  selectedProductImage.id = 'selected-product-image';
+  searchInput.parentNode.insertBefore(selectedProductImage, searchIcon);
+
   // Cache simple pour stocker les résultats de recherche
   const searchCache = new Map();
   
@@ -38,6 +43,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Recherche de produits avec debounce
   const performSearch = debounce(async (term) => {
+    if (term.length === 0) {
+      selectedProductImage.style.display = 'none';
+      selectedProductImage.innerHTML = '';
+    }
+
     if (term.length < MIN_SEARCH_LENGTH) {
       hideAutocomplete();
       return;
@@ -113,14 +123,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (product.name) {
             suggestions.set(product.name, {
                 image: product.photo_url || PLACEHOLDER_IMAGE,
-                banStatus: product.ban // Accès direct au champ ban
+                banStatus: product.ban
             });
         }
         product.alternatives?.forEach(alt => {
             if (alt.name) {
                 suggestions.set(alt.name, {
                     image: alt.image || PLACEHOLDER_IMAGE,
-                    banStatus: alt.ban // Supposant que les alternatives ont aussi le champ ban
+                    banStatus: alt.ban
                 });
             }
         });
@@ -148,28 +158,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 <span class="ban-status-icon">${getBanStatusIcon(banStatus)}</span>
             `;
             
-            item.addEventListener('click', () => selectAutocompleteItem(name));
+            item.addEventListener('click', () => selectAutocompleteItem(name, image));
             autocompleteBox.appendChild(item);
         });
 
     autocompleteBox.style.display = 'block';
-}
-
-// Ajoutez cette fonction pour générer l'icône de statut
-function getBanStatusIcon(banStatus) {
-  if (banStatus === false) {
-      return '<i class="fas fa-thumbs-up green-icon" title="Produit autorisé"></i>';
-  } else if (banStatus === true) {
-      return '<i class="fas fa-thumbs-down red-icon" title="Produit interdit"></i>';
-  } else {
-      return '<i class="fas fa-circle orange-icon" title="Statut inconnu"></i>';
   }
-}
 
-  function selectAutocompleteItem(name) {
+  function getBanStatusIcon(banStatus) {
+    if (banStatus === false) {
+        return '<i class="fas fa-thumbs-up green-icon" title="Produit autorisé"></i>';
+    } else if (banStatus === true) {
+        return '<i class="fas fa-thumbs-down red-icon" title="Produit interdit"></i>';
+    } else {
+        return '<i class="fas fa-circle orange-icon" title="Statut inconnu"></i>';
+    }
+  }
+
+  function selectAutocompleteItem(name, imageUrl) {
     searchInput.value = name;
     hideAutocomplete();
     searchInput.focus();
+    
+    // Afficher l'image sélectionnée
+    if (imageUrl) {
+        selectedProductImage.innerHTML = `<img src="${imageUrl}" alt="${name}" onerror="this.style.display='none'">`;
+        selectedProductImage.style.display = 'block';
+    } else {
+        selectedProductImage.style.display = 'none';
+    }
+    
     searchInput.dispatchEvent(new Event('input', { bubbles: true }));
   }
 
@@ -257,7 +275,7 @@ function getBanStatusIcon(banStatus) {
 
       showAlert(result.message || 'Merci pour votre contribution !', 'success');
       contributionForm.reset();
-      searchCache.clear(); // Invalider le cache après une nouvelle contribution
+      searchCache.clear();
     } catch (error) {
       console.error('Submission error:', error);
       showAlert(error.message || 'Erreur lors de l\'envoi. Veuillez réessayer.', 'error');
