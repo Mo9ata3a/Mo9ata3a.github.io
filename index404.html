@@ -42,15 +42,15 @@
             <th scope="col">Note</th>
           </tr>
            <tr class="filters">
-      <td></td> <!-- Pas de filtre pour l'image -->
-      <td><input type="text" class="filter-input" data-column="1" placeholder="Filtrer par produit..."></td>
+      <td></td>
+      <td><input type="text" class="filter-input" data-column="1" placeholder="Rechercher produit..."></td>
       <td>
         <select class="filter-input" data-column="2">
           <option value="">Toutes</option>
-          <option value="econet">Econet</option>
+          <!-- Les options seront générées dynamiquement -->
         </select>
       </td>
-      <td></td> <!-- Pas de filtre pour la note -->
+      <td></td>
     </tr>
         </thead>
         <tbody></tbody>
@@ -108,25 +108,50 @@
   </footer>
 
   <script src="script2.js" defer></script>
-  <script>
-  // Fonction de filtrage
+<script>
   function filterTable() {
-    const filters = [];
-    document.querySelectorAll('.filter-input').forEach(input => {
-      filters[input.dataset.column] = input.value.toLowerCase();
-    });
+    const filters = Array.from(document.querySelectorAll('.filter-input')).map(input => ({
+      column: parseInt(input.dataset.column),
+      value: input.value.trim().toLowerCase()
+    }));
 
     document.querySelectorAll('#results tbody tr').forEach(row => {
       let visible = true;
-      Array.from(row.cells).forEach((cell, index) => {
-        if(filters[index]) {
-          const cellText = cell.textContent.toLowerCase().trim();
-          if(!cellText.includes(filters[index])) {
-            visible = false;
+      
+      filters.forEach(filter => {
+        if(filter.value) {
+          const cell = row.cells[filter.column];
+          const cellContent = cell.textContent.toLowerCase().trim();
+          
+          if(filter.column === 2) { // Filtre exact pour la marque
+            if(cellContent !== filter.value) visible = false;
+          } else { // Filtre par inclusion pour les autres
+            if(!cellContent.includes(filter.value)) visible = false;
           }
         }
       });
+      
       row.style.display = visible ? '' : 'none';
+    });
+
+    updateMarqueFilter(); // Met à jour les options après filtrage
+  }
+
+  function updateMarqueFilter() {
+    const marques = new Set();
+    const currentFilter = document.querySelector('.filter-input[data-column="2"]').value;
+    
+    // Collecte uniquement les marques visibles
+    document.querySelectorAll('#results tbody tr:not([style*="display: none"]) td:nth-child(3)').forEach(td => {
+      marques.add(td.textContent.trim().toLowerCase());
+    });
+
+    const select = document.querySelector('.filter-input[data-column="2"]');
+    const previousValue = select.value;
+    
+    select.innerHTML = '<option value="">Toutes</option>';
+    marques.forEach(marque => {
+      select.innerHTML += `<option value="${marque}" ${marque === previousValue ? 'selected' : ''}>${marque}</option>`;
     });
   }
 
@@ -135,17 +160,8 @@
     input.addEventListener('input', filterTable);
   });
 
-  // Génération dynamique des options pour la marque (si nécessaire)
-  const marques = new Set();
-  document.querySelectorAll('#results tbody tr td:nth-child(3)').forEach(td => {
-    marques.add(td.textContent.trim().toLowerCase());
-  });
-  
-  const selectMarque = document.querySelector('.filter-input[data-column="2"]');
-  selectMarque.innerHTML = '<option value="">Toutes</option>';
-  marques.forEach(marque => {
-    selectMarque.innerHTML += `<option value="${marque}">${marque.charAt(0).toUpperCase() + marque.slice(1)}</option>`;
-  });
+  // Initialisation
+  updateMarqueFilter();
 </script>
 </body>
 </html>
