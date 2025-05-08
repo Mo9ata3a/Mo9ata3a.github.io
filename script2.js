@@ -197,9 +197,9 @@ document.addEventListener('DOMContentLoaded', () => {
           <td><img src="${alt.photo_url || PLACEHOLDER_IMAGE}" alt="${alt.name}" 
                onerror="this.src='${PLACEHOLDER_IMAGE}'" loading="lazy"></td>
           <td>${escapeHtml(alt.name)}</td>
-          <td>${alt.description ? escapeHtml(alt.description) : 'Aucune description disponible'}</td>
+          <td>${alt.categorie ? escapeHtml(alt.categorie) : 'Aucune description disponible'}</td>
           <td><span class="rating ${alt.rating}">
-            ${getRatingIcon(alt.rating)}
+            ${getRatingIcon(alt.getBanStatusIcon)}
           </span></td>
         `;
         resultsTable.appendChild(row);
