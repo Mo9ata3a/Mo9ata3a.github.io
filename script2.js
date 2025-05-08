@@ -197,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <td><img src="${alt.photo_url || PLACEHOLDER_IMAGE}" alt="${alt.name}" 
                onerror="this.src='${PLACEHOLDER_IMAGE}'" loading="lazy"></td>
           <td>${escapeHtml(alt.name)}</td>
-          <td>${alt.categorie ? escapeHtml(alt.categorie) : 'Aucune categorie disponible'}</td>
+          <td>${alt.marque ? escapeHtml(alt.marque) : 'Aucune categorie disponible'}</td>
           <td><span class="rating ${alt.ban}">
             ${getRatingIcon('green')}
           </span></td>
@@ -226,9 +226,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Obtenir l'icône de notation
   function getRatingIcon(rating) {
     const icons = {
-      green: '<i class="fas fa-thumbs-up"></i> Bonne',
-      orange: '<i class="fas fa-circle"></i> Moyenne',
-      red: '<i class="fas fa-thumbs-down"></i> Mauvaise'
+      green: '<i class="fas fa-thumbs-up"></i> Good',
+      orange: '<i class="fas fa-circle"></i> UNKNOWN',
+      red: '<i class="fas fa-thumbs-down"></i> Bad'
     };
     return icons[rating] || '';
   }
