@@ -213,23 +213,23 @@ document.addEventListener('DOMContentLoaded', () => {
       showAlert('Aucun résultat trouvé', 'info');
     }
 
-    const marquesDistinctes = [...new Set(products.map(product => product.alternatives.marque))];
+   
+    const uniqueBrands = [...new Set(product.alternatives.map(alt => alt.marque))];
 
-    // Trier par ordre alphabétique
-    marquesDistinctes.sort();
-
-    // Afficher dans la page
-    const container = document.getElementById('marques');
-    //
-
-    marquesDistinctes.forEach(marque => {
-        const element = document.createElement('div');
-        element.className = 'marque';
-        element.textContent = marque;
-        resultsTable.appendChild(element);
+    // 2. Affichage dans le HTML
+    const brandsContainer = document.getElementById('brandsContainer');
+    
+    uniqueBrands.forEach(brand => {
+        const li = document.createElement('li');
+        li.className = 'brand-item';
+        li.textContent = brand;
+        resultsTable.appendChild(li);
     });
 
-
+    // Si aucune marque alternative n'est trouvée
+    if (uniqueBrands.length === 0) {
+      resultsTable.innerHTML = '<li>Aucune marque alternative trouvée</li>';
+    }
 
     
   }
