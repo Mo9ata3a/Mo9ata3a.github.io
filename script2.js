@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
       product.alternatives?.forEach(alt => {
         if (alt.name) {
           suggestions.set(alt.name, {
-            image: alt.image || PLACEHOLDER_IMAGE,
+            image: alt.photo_url || PLACEHOLDER_IMAGE,
             banStatus: alt.ban
           });
         }
