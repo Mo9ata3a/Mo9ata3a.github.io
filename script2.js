@@ -220,6 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Afficher dans la page
     const container = document.getElementById('marques');
+    //
     
     marquesDistinctes.forEach(marque => {
         const element = document.createElement('div');
