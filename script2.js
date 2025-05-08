@@ -213,7 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
       showAlert('Aucun résultat trouvé', 'info');
     }
 
-    const marquesDistinctes = [...new Set(products.map(product => product.marque))];
+    const marquesDistinctes = [...new Set(products.map(product => product.alternatives.marque))];
 
     // Trier par ordre alphabétique
     marquesDistinctes.sort();
@@ -221,7 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Afficher dans la page
     const container = document.getElementById('marques');
     //
-    
+
     marquesDistinctes.forEach(marque => {
         const element = document.createElement('div');
         element.className = 'marque';
