@@ -38,9 +38,20 @@
           <tr>
             <th scope="col">Image</th>
             <th scope="col">Alternative</th>
-            <th scope="col">Description</th>
-            <th scope="col">Santé</th>
+            <th scope="col">Marque</th>
+            <th scope="col">Note</th>
           </tr>
+           <tr class="filters">
+      <td></td>
+      <td><input type="text" class="filter-input" data-column="1" placeholder="Rechercher produit..."></td>
+      <td>
+        <select class="filter-input" data-column="2">
+          <option value="">Toutes</option>
+          <!-- Les options seront générées dynamiquement -->
+        </select>
+      </td>
+      <td></td>
+    </tr>
         </thead>
         <tbody></tbody>
       </table>
@@ -60,12 +71,12 @@
         </div>
         
         <div class="form-group">
-          <label for="alt-desc">Description :</label>
+          <label for="alt-desc">Marque :</label>
           <textarea id="alt-desc" required></textarea>
         </div>
         
         <div class="form-group">
-          <label>Note santé :</label>
+          <label>Note:</label>
           <div class="rating-options">
             <label>
               <input type="radio" name="rating" value="green" required>
@@ -97,6 +108,61 @@
   </footer>
 
   <script src="script2.js" defer></script>
+<script>
+  function filterTable() {
+    const filters = Array.from(document.querySelectorAll('.filter-input')).map(input => ({
+      column: parseInt(input.dataset.column),
+      value: input.value.trim().toLowerCase()
+    }));
+
+    document.querySelectorAll('#results tbody tr').forEach(row => {
+      let visible = true;
+      
+      filters.forEach(filter => {
+        if(filter.value) {
+          const cell = row.cells[filter.column];
+          const cellContent = cell.textContent.toLowerCase().trim();
+          
+          if(filter.column === 2) { // Filtre exact pour la marque
+            if(cellContent !== filter.value) visible = false;
+          } else { // Filtre par inclusion pour les autres
+            if(!cellContent.includes(filter.value)) visible = false;
+          }
+        }
+      });
+      
+      row.style.display = visible ? '' : 'none';
+    });
+
+    updateMarqueFilter(); // Met à jour les options après filtrage
+  }
+
+  function updateMarqueFilter() {
+    const marques = new Set();
+    const currentFilter = document.querySelector('.filter-input[data-column="2"]').value;
+    
+    // Collecte uniquement les marques visibles
+    document.querySelectorAll('#results tbody tr:not([style*="display: none"]) td:nth-child(3)').forEach(td => {
+      marques.add(td.textContent.trim().toLowerCase());
+    });
+
+    const select = document.querySelector('.filter-input[data-column="2"]');
+    const previousValue = select.value;
+    
+    select.innerHTML = '<option value="">Toutes</option>';
+    marques.forEach(marque => {
+      select.innerHTML += `<option value="${marque}" ${marque === previousValue ? 'selected' : ''}>${marque}</option>`;
+    });
+  }
+
+  // Écouteurs d'événements
+  document.querySelectorAll('.filter-input').forEach(input => {
+    input.addEventListener('input', filterTable);
+  });
+
+  // Initialisation
+  updateMarqueFilter();
+</script>
 </body>
 </html>
 
