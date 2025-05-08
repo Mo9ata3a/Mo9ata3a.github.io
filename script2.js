@@ -190,6 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let hasResults = false;
 
     products.forEach(product => {
+      
       product.alternatives?.forEach(alt => {
         hasResults = true;
         const row = document.createElement('tr');
@@ -211,6 +212,25 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       showAlert('Aucun résultat trouvé', 'info');
     }
+
+    const marquesDistinctes = [...new Set(products.map(product => product.marque))];
+
+    // Trier par ordre alphabétique
+    marquesDistinctes.sort();
+
+    // Afficher dans la page
+    const container = document.getElementById('marques');
+    
+    marquesDistinctes.forEach(marque => {
+        const element = document.createElement('div');
+        element.className = 'marque';
+        element.textContent = marque;
+        resultsTable.appendChild(element);
+    });
+
+
+
+    
   }
 
   // Protection XSS basique
