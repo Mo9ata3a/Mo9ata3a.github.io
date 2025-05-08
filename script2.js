@@ -194,7 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
         hasResults = true;
         const row = document.createElement('tr');
         row.innerHTML = `
-          <td><img src="${alt.image || PLACEHOLDER_IMAGE}" alt="${alt.name}" 
+          <td><img src="${alt.photo_url || PLACEHOLDER_IMAGE}" alt="${alt.name}" 
                onerror="this.src='${PLACEHOLDER_IMAGE}'" loading="lazy"></td>
           <td>${escapeHtml(alt.name)}</td>
           <td>${alt.description ? escapeHtml(alt.description) : 'Aucune description disponible'}</td>
