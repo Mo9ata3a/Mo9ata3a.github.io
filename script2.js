@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const PLACEHOLDER_IMAGE = 'https://placehold.co/50';
   const selectedProductImage = document.getElementById('selected-product-image');
 
-  // Configuration originale
+  // Configuration
   const searchCache = new Map();
   const DEBOUNCE_DELAY = 300;
   const ALERT_DISPLAY_TIME = 5000;
@@ -18,17 +18,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const MAX_AUTOCOMPLETE_ITEMS = 5;
   let currentAutocompleteIndex = -1;
 
-  // Éléments du formulaire (version originale)
+  // Éléments du formulaire
   const formElements = {
     productName: document.getElementById('product-name'),
     altName: document.getElementById('alt-name'),
     altDesc: document.getElementById('alt-desc'),
-    rating: contributionForm.querySelector('input[name="rating"]:checked'),
     altImage: document.getElementById('alt-image'),
     submitBtn: contributionForm.querySelector('button')
   };
 
-  // Recherche avec debounce (version originale améliorée)
+  // Débounce pour la recherche
   const performSearch = debounce(async (term) => {
     if (term.length === 0) {
       selectedProductImage.style.display = 'none';
@@ -54,24 +53,20 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       
       const data = await response.json();
-      if (data.error) {
-        showAlert(data.error, 'warning');
-        return;
-      }
+      if (data.error) throw new Error(data.error);
 
       searchCache.set(term, data);
       displayAutocomplete(data);
       displayResults(data);
 
     } catch (error) {
-      console.error('Search error:', error);
-      showAlert('Erreur de connexion à l\'API', 'error');
+      showAlert(error.message || 'Erreur de connexion à l\'API', 'error');
     } finally {
       setLoadingState(false);
     }
   }, DEBOUNCE_DELAY);
 
-  // Gestion de l'autocomplétion (version originale + accessibilité)
+  // Affichage de l'autocomplétion
   function displayAutocomplete(products) {
     const suggestions = new Map();
 
@@ -111,11 +106,10 @@ document.addEventListener('DOMContentLoaded', () => {
         item.setAttribute('id', `autocomplete-item-${index}`);
 
         item.innerHTML = `
-          <img src="${image}" alt="${escapeHtml(name)}" 
-               onerror="this.src='${PLACEHOLDER_IMAGE}'" 
-               class="autocomplete-img">
-          <span class="autocomplete-name">${escapeHtml(name)}</span>
-          <span class="ban-status-icon">${getBanStatusIcon(banStatus)}</span>
+          <img src="${image}" alt="" aria-hidden="true" 
+               onerror="this.src='${PLACEHOLDER_IMAGE}'">
+          <span>${escapeHtml(name)}</span>
+          ${getBanStatusIcon(banStatus)}
         `;
 
         item.addEventListener('click', () => selectAutocompleteItem(name, image));
@@ -126,27 +120,51 @@ document.addEventListener('DOMContentLoaded', () => {
     currentAutocompleteIndex = -1;
   }
 
-  // Fonctions originales conservées
-  function getBanStatusIcon(banStatus) {
-    if (banStatus === false) {
-      return '<i class="fas fa-thumbs-up green-icon" title="Produit autorisé"></i>';
-    } else if (banStatus === true) {
-      return '<i class="fas fa-thumbs-down red-icon" title="Produit interdit"></i>';
+  // Gestion de la sélection
+  function selectAutocompleteItem(name, imageUrl) {
+    searchInput.value = name;
+    hideAutocomplete();
+    
+    if (imageUrl) {
+      selectedProductImage.innerHTML = `<img src="${imageUrl}" alt="${escapeHtml(name)}">`;
+      selectedProductImage.style.display = 'block';
     } else {
-      return '<i class="fas fa-circle orange-icon" title="Statut inconnu"></i>';
+      selectedProductImage.style.display = 'none';
     }
+    
+    searchInput.focus();
   }
 
-  function getRatingIcon(rating) {
-    const icons = {
-      green: '<i class="fas fa-thumbs-up"></i> Good',
-      orange: '<i class="fas fa-circle"></i> UNKNOWN',
-      red: '<i class="fas fa-thumbs-down"></i> Bad'
-    };
-    return icons[rating] || '';
-  }
+  // Navigation clavier
+  searchInput.addEventListener('keydown', (e) => {
+    const items = autocompleteBox.children;
+    
+    switch(e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        currentAutocompleteIndex = Math.min(currentAutocompleteIndex + 1, items.length - 1);
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        currentAutocompleteIndex = Math.max(currentAutocompleteIndex - 1, -1);
+        break;
+      case 'Enter':
+        if (currentAutocompleteIndex >= 0 && items[currentAutocompleteIndex]) {
+          items[currentAutocompleteIndex].click();
+        }
+        return;
+      case 'Escape':
+        hideAutocomplete();
+        return;
+    }
 
-  // Affichage des résultats original amélioré
+    Array.from(items).forEach((item, i) => {
+      item.setAttribute('aria-selected', i === currentAutocompleteIndex);
+      item.classList.toggle('selected', i === currentAutocompleteIndex);
+    });
+  });
+
+  // Affichage des résultats
   function displayResults(products) {
     resultsTable.innerHTML = '';
     let hasResults = false;
@@ -159,42 +177,39 @@ document.addEventListener('DOMContentLoaded', () => {
           <td>
             <img src="${alt.photo_url || PLACEHOLDER_IMAGE}" 
                  alt="${escapeHtml(alt.name)}" 
-                 loading="lazy"
-                 aria-describedby="product-image-${alt.id}">
+                 loading="lazy">
           </td>
           <td>${escapeHtml(alt.name)}</td>
-          <td>${alt.marque ? escapeHtml(alt.marque) : 'Aucune catégorie disponible'}</td>
-          <td>
-            <span class="rating ${alt.ban}" role="img" aria-label="Statut santé: ${alt.ban}">
-              ${getRatingIcon('green')}
-            </span>
-          </td>
+          <td>${alt.marque || 'Non spécifié'}</td>
+          <td aria-label="Statut: ${alt.ban}">${getRatingIcon(alt.ban)}</td>
         `;
         resultsTable.appendChild(row);
       });
     });
 
     resultsContainer.style.display = hasResults ? 'block' : 'none';
-    resultsContainer.setAttribute('aria-live', 'polite');
+    updateBrandList(products);
+  }
 
-    // Gestion des marques (fonctionnalité originale)
-    const uniqueBrands = [...new Set(products.flatMap(p => 
-      p.alternatives?.map(alt => alt.marque).filter(Boolean)
+  // Mise à jour des marques
+  function updateBrandList(products) {
+    const uniqueBrands = [...new Set(
+      products.flatMap(p => 
+        p.alternatives?.map(alt => alt.marque).filter(Boolean)
     )];
     
     const brandsContainer = document.getElementById('brandsContainer');
     if (brandsContainer) {
       brandsContainer.innerHTML = uniqueBrands.length > 0 
         ? uniqueBrands.map(b => `<li class="brand-item">${escapeHtml(b)}</li>`).join('')
-        : '<li>Aucune marque alternative trouvée</li>';
+        : '<li>Aucune marque trouvée</li>';
     }
   }
 
-  // Formulaire de contribution original avec accessibilité
+  // Gestion du formulaire
   contributionForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    contributionForm.setAttribute('aria-live', 'polite');
-
+    
     const formData = {
       productName: formElements.productName.value.trim(),
       altName: formElements.altName.value.trim(),
@@ -214,57 +229,107 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       const result = await parseResponse(response);
-      showAlert(result.message || 'Merci pour votre contribution !', 'success');
+      showAlert(result.message || 'Contribution envoyée!', 'success');
       contributionForm.reset();
       searchCache.clear();
+
     } catch (error) {
-      showAlert(error.message || 'Erreur lors de l\'envoi', 'error');
+      showAlert(error.message || 'Erreur d\'envoi', 'error');
     } finally {
       setFormLoadingState(false);
     }
   });
 
-  // Reste des fonctions utilitaires originales
-  function escapeHtml(unsafe) {
-    return unsafe
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
+  // Fonctions utilitaires
+  function escapeHtml(text) {
+    return text.replace(/[&<>"']/g, m => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+    }[m]));
+  }
+
+  function getBanStatusIcon(banStatus) {
+    return banStatus === false 
+      ? '<i class="fas fa-thumbs-up green-icon" aria-hidden="true"></i>'
+      : banStatus === true 
+        ? '<i class="fas fa-thumbs-down red-icon" aria-hidden="true"></i>'
+        : '<i class="fas fa-circle orange-icon" aria-hidden="true"></i>';
+  }
+
+  function getRatingIcon(rating) {
+    return rating === 'green' 
+      ? '<i class="fas fa-thumbs-up"></i>'
+      : rating === 'red' 
+        ? '<i class="fas fa-thumbs-down"></i>'
+        : '<i class="fas fa-circle"></i>';
+  }
+
+  function debounce(fn, delay) {
+    let timeout;
+    return (...args) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => fn(...args), delay);
+    };
+  }
+
+  function setLoadingState(isLoading) {
+    searchIcon.innerHTML = isLoading 
+      ? '<i class="fas fa-spinner fa-spin" aria-hidden="true"></i>'
+      : '<i class="fas fa-search" aria-hidden="true"></i>';
+  }
+
+  function setFormLoadingState(isLoading) {
+    formElements.submitBtn.disabled = isLoading;
+    formElements.submitBtn.innerHTML = isLoading
+      ? '<i class="fas fa-spinner fa-spin"></i> Envoi...'
+      : '<i class="fas fa-paper-plane"></i> Soumettre';
+  }
+
+  function validateForm(formData) {
+    if (!formData.productName) {
+      showAlert('Nom du produit requis', 'warning');
+      return false;
+    }
+    if (!formData.altName) {
+      showAlert('Nom de l\'alternative requis', 'warning');
+      return false;
+    }
+    if (formData.altImage && !isValidUrl(formData.altImage)) {
+      showAlert('URL d\'image invalide', 'warning');
+      return false;
+    }
+    return true;
+  }
+
+  async function parseResponse(response) {
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.message || 'Erreur serveur');
+    }
+    return response.json();
   }
 
   function isValidUrl(string) {
-    try { new URL(string); return true; }
-    catch (_) { return false; }
+    try { return Boolean(new URL(string)); } 
+    catch { return false; }
   }
 
-  // ... (Toutes les autres fonctions originales conservées)
+  function showAlert(message, type) {
+    alertDiv.textContent = message;
+    alertDiv.className = `alert alert-${type}`;
+    alertDiv.setAttribute('role', 'alert');
+    alertDiv.style.display = 'block';
+    setTimeout(() => alertDiv.style.display = 'none', ALERT_DISPLAY_TIME);
+  }
 
-  // Ajouts pour l'accessibilité uniquement
-  searchInput.addEventListener('keydown', (e) => {
-    const items = autocompleteBox.children;
-    
-    switch(e.key) {
-      case 'ArrowDown':
-        e.preventDefault();
-        currentAutocompleteIndex = Math.min(currentAutocompleteIndex + 1, items.length - 1);
-        break;
-      case 'ArrowUp':
-        e.preventDefault();
-        currentAutocompleteIndex = Math.max(currentAutocompleteIndex - 1, -1);
-        break;
-      case 'Enter':
-        if (items[currentAutocompleteIndex]) items[currentAutocompleteIndex].click();
-        return;
-      case 'Escape':
-        hideAutocomplete();
-        return;
-    }
-
-    Array.from(items).forEach((item, i) => {
-      item.setAttribute('aria-selected', i === currentAutocompleteIndex);
-      item.classList.toggle('selected', i === currentAutocompleteIndex);
-    });
+  // Événements
+  searchInput.addEventListener('input', (e) => performSearch(e.target.value.trim()));
+  document.addEventListener('click', (e) => {
+    if (!autocompleteBox.contains(e.target)) hideAutocomplete();
   });
+  searchIcon.addEventListener('click', () => searchInput.focus());
+
+  function hideAutocomplete() {
+    autocompleteBox.style.display = 'none';
+    currentAutocompleteIndex = -1;
+  }
 });
