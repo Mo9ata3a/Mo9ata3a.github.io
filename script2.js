@@ -27,22 +27,17 @@ document.addEventListener('DOMContentLoaded', () => {
     submitBtn: contributionForm.querySelector('button')
   };
 
-  // Débounce pour la recherche
+  // Gestion de la recherche
   const performSearch = debounce(async (term) => {
-    if (term.length === 0) {
-      selectedProductImage.style.display = 'none';
-      selectedProductImage.innerHTML = '';
-    }
-
+    term = term.trim();
+    
     if (term.length < MIN_SEARCH_LENGTH) {
       hideAutocomplete();
       return;
     }
 
     if (searchCache.has(term)) {
-      const cachedData = searchCache.get(term);
-      displayAutocomplete(cachedData);
-      displayResults(cachedData);
+      displayAutocomplete(searchCache.get(term));
       return;
     }
 
@@ -50,86 +45,65 @@ document.addEventListener('DOMContentLoaded', () => {
       setLoadingState(true);
       const response = await fetch(`${API_URL}/api/products/search/${encodeURIComponent(term)}`);
       
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      if (!response.ok) throw new Error(`Statut HTTP: ${response.status}`);
       
       const data = await response.json();
-      if (data.error) throw new Error(data.error);
-
       searchCache.set(term, data);
       displayAutocomplete(data);
-      displayResults(data);
 
     } catch (error) {
-      showAlert(error.message || 'Erreur de connexion à l\'API', 'error');
+      showAlert(error.message || 'Erreur de connexion', 'error');
     } finally {
       setLoadingState(false);
     }
   }, DEBOUNCE_DELAY);
 
-  // Affichage de l'autocomplétion
+  // Affichage autocomplétion
   function displayAutocomplete(products) {
-    const suggestions = new Map();
-
-    products.forEach(product => {
-      if (product.name) {
-        suggestions.set(product.name, {
-          image: product.photo_url || PLACEHOLDER_IMAGE,
-          banStatus: product.ban
-        });
-      }
-      product.alternatives?.forEach(alt => {
-        if (alt.name) {
-          suggestions.set(alt.name, {
-            image: alt.photo_url || PLACEHOLDER_IMAGE,
-            banStatus: alt.ban
-          });
-        }
-      });
-    });
-
     autocompleteBox.innerHTML = '';
     autocompleteBox.setAttribute('role', 'listbox');
-    autocompleteBox.setAttribute('aria-label', 'Suggestions de produits');
+    autocompleteBox.setAttribute('aria-label', 'Suggestions');
 
-    if (suggestions.size === 0) {
-      hideAutocomplete();
-      return;
-    }
+    const suggestions = products.flatMap(product => [
+      product,
+      ...(product.alternatives || [])
+    ]).filter(item => item.name);
 
-    Array.from(suggestions.entries())
-      .slice(0, MAX_AUTOCOMPLETE_ITEMS)
-      .forEach(([name, { image, banStatus }], index) => {
-        const item = document.createElement('div');
-        item.className = 'autocomplete-item';
-        item.setAttribute('role', 'option');
-        item.setAttribute('aria-selected', 'false');
-        item.setAttribute('id', `autocomplete-item-${index}`);
+    suggestions.slice(0, MAX_AUTOCOMPLETE_ITEMS).forEach((item, index) => {
+      const div = document.createElement('div');
+      div.className = 'autocomplete-item';
+      div.setAttribute('role', 'option');
+      div.setAttribute('id', `ac-${index}`);
+      div.setAttribute('aria-selected', 'false');
+      
+      div.innerHTML = `
+        <img src="${item.photo_url || PLACEHOLDER_IMAGE}" 
+             alt="" 
+             class="autocomplete-img"
+             onerror="this.src='${PLACEHOLDER_IMAGE}'">
+        <span>${escapeHtml(item.name)}</span>
+        ${getBanStatusIcon(item.ban)}
+      `;
 
-        item.innerHTML = `
-          <img src="${image}" alt="" aria-hidden="true" 
-               onerror="this.src='${PLACEHOLDER_IMAGE}'">
-          <span>${escapeHtml(name)}</span>
-          ${getBanStatusIcon(banStatus)}
-        `;
+      div.addEventListener('click', () => selectAutocompleteItem(item));
+      autocompleteBox.appendChild(div);
+    });
 
-        item.addEventListener('click', () => selectAutocompleteItem(name, image));
-        autocompleteBox.appendChild(item);
-      });
-
-    autocompleteBox.style.display = 'block';
-    currentAutocompleteIndex = -1;
+    autocompleteBox.style.display = suggestions.length ? 'block' : 'none';
   }
 
-  // Gestion de la sélection
-  function selectAutocompleteItem(name, imageUrl) {
-    searchInput.value = name;
+  // Sélection item
+  function selectAutocompleteItem(item) {
+    searchInput.value = item.name;
     hideAutocomplete();
     
-    if (imageUrl) {
-      selectedProductImage.innerHTML = `<img src="${imageUrl}" alt="${escapeHtml(name)}">`;
+    if (item.photo_url) {
+      selectedProductImage.innerHTML = `
+        <img src="${item.photo_url}" 
+             alt="${escapeHtml(item.name)}" 
+             onerror="this.style.display='none'">
+      `;
       selectedProductImage.style.display = 'block';
-    } else {
-      selectedProductImage.style.display = 'none';
     }
     
     searchInput.focus();
@@ -149,9 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentAutocompleteIndex = Math.max(currentAutocompleteIndex - 1, -1);
         break;
       case 'Enter':
-        if (currentAutocompleteIndex >= 0 && items[currentAutocompleteIndex]) {
-          items[currentAutocompleteIndex].click();
-        }
+        if (currentAutocompleteIndex >= 0) items[currentAutocompleteIndex].click();
         return;
       case 'Escape':
         hideAutocomplete();
@@ -159,12 +131,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     Array.from(items).forEach((item, i) => {
-      item.setAttribute('aria-selected', i === currentAutocompleteIndex);
       item.classList.toggle('selected', i === currentAutocompleteIndex);
+      item.setAttribute('aria-selected', i === currentAutocompleteIndex);
     });
   });
 
-  // Affichage des résultats
+  // Affichage résultats
   function displayResults(products) {
     resultsTable.innerHTML = '';
     let hasResults = false;
@@ -191,22 +163,23 @@ document.addEventListener('DOMContentLoaded', () => {
     updateBrandList(products);
   }
 
-  // Mise à jour des marques
+  // Mise à jour marques
   function updateBrandList(products) {
-    const uniqueBrands = [...new Set(
-      products.flatMap(p => 
-        p.alternatives?.map(alt => alt.marque).filter(Boolean)
-    )];
-    
     const brandsContainer = document.getElementById('brandsContainer');
-    if (brandsContainer) {
-      brandsContainer.innerHTML = uniqueBrands.length > 0 
-        ? uniqueBrands.map(b => `<li class="brand-item">${escapeHtml(b)}</li>`).join('')
-        : '<li>Aucune marque trouvée</li>';
-    }
+    if (!brandsContainer) return;
+
+    const brands = [...new Set(
+      products.flatMap(p => 
+        p.alternatives?.map(a => a.marque).filter(Boolean)
+      )
+    )];
+
+    brandsContainer.innerHTML = brands.length 
+      ? brands.map(b => `<li>${escapeHtml(b)}</li>`).join('')
+      : '<li>Aucune marque trouvée</li>';
   }
 
-  // Gestion du formulaire
+  // Formulaire
   contributionForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     
@@ -229,12 +202,12 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       const result = await parseResponse(response);
-      showAlert(result.message || 'Contribution envoyée!', 'success');
+      showAlert(result.message || 'Merci pour votre contribution !', 'success');
       contributionForm.reset();
       searchCache.clear();
 
     } catch (error) {
-      showAlert(error.message || 'Erreur d\'envoi', 'error');
+      showAlert(error.message || 'Erreur lors de l\'envoi', 'error');
     } finally {
       setFormLoadingState(false);
     }
@@ -323,9 +296,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Événements
   searchInput.addEventListener('input', (e) => performSearch(e.target.value.trim()));
-  document.addEventListener('click', (e) => {
-    if (!autocompleteBox.contains(e.target)) hideAutocomplete();
-  });
+  document.addEventListener('click', (e) => !autocompleteBox.contains(e.target) && hideAutocomplete());
   searchIcon.addEventListener('click', () => searchInput.focus());
 
   function hideAutocomplete() {
