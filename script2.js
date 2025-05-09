@@ -50,6 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await response.json();
       searchCache.set(term, data);
       displayAutocomplete(data);
+      displayResults(data);
 
     } catch (error) {
       showAlert(error.message || 'Erreur de connexion', 'error');
