@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
              alt="" 
              onerror="this.src='${CONFIG.placeholderImage}'">
         <span>${escapeHtml(item.name)}</span>
-        ${getRatingBadge(item.ban)}
+        ${getRatingBadge(item.ban)} ddd "${item.ban}"
       `;
   
       div.addEventListener('click', () => selectAutocompleteItem(item));
@@ -306,11 +306,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   
     function getRatingBadge(rating) {
-        return rating === 'green' 
-        ? '<i class="fas fa-thumbs-up"></i>'
-        : rating === 'red' 
-          ? '<i class="fas fa-thumbs-down"></i>'
-          : '<i class="fas fa-circle"></i>';
+      switch(rating) {
+        case 'green': return '<span class="rating-badge green"><i class="fas fa-thumbs-up"></i></span>';
+        case 'red': return '<span class="rating-badge red"><i class="fas fa-thumbs-down"></i></span>';
+        default: return '<span class="rating-badge orange"><i class="fas fa-circle"></i></span>';
+      }
     }
   
     function debounce(func, wait) {
