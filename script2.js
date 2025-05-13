@@ -230,11 +230,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function getRatingIcon(rating) {
-    return rating === 'green' 
-      ? '<i class="fas fa-thumbs-up"></i>'
-      : rating === 'red' 
-        ? '<i class="fas fa-thumbs-down"></i>'
-        : '<i class="fas fa-circle"></i>';
+    switch(rating) {
+      case false : return '<span class="rating-badge green"><i class="fas fa-thumbs-up"></i></span>';
+      case true: return '<span class="rating-badge red"><i class="fas fa-thumbs-down"></i></span>';
+      default: return '<span class="rating-badge orange"><i class="fas fa-circle"></i></span>';
+    }
   }
 
   function debounce(fn, delay) {
