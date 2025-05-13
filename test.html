@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://mon-api-three.vercel.app; script-src 'self'; style-src 'self' https://cdnjs.cloudflare.com; img-src 'self' https://images.unsplash.com https://placehold.co https://res.cloudinary.com; font-src 'self' https://cdnjs.cloudflare.com;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://mon-api-three.vercel.app; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' https://images.unsplash.com https://placehold.co https://res.cloudinary.com; font-src 'self' https://cdnjs.cloudflare.com;">
   <title>Alternatives Saines</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <link rel="stylesheet" href="styles2.css">
@@ -16,13 +16,12 @@
 
   <main>
     <div class="search-container">
-      <div class="search-wrapper">
+      <div class="search-wrapper" style="position: relative;">
         <label for="search" class="visually-hidden">Rechercher un produit</label>
-        <input type="text" id="search" placeholder="Ex: Coca-Cola, Nutella...">
+        <input type="text" id="search" placeholder="Ex: Coca-Cola, Nutella..." 
+               style="width: 100%; box-sizing: border-box;">
         <div id="selected-product-image"></div>
-        <button id="search-button" aria-label="Rechercher">
-          <i class="fas fa-search"></i>
-        </button>
+        <div id="search-icon"><i class="fas fa-search"></i></div>
         <div id="autocomplete-results" class="autocomplete-results"></div>
       </div>
     </div>
@@ -31,7 +30,6 @@
 
     <div id="results-container">
       <table id="results">
-        <caption class="visually-hidden">Liste des alternatives saines</caption>
         <thead>
           <tr>
             <th scope="col">Image</th>
@@ -42,12 +40,10 @@
           <tr class="filters">
             <td></td>
             <td>
-              <label for="filter-product" class="visually-hidden">Filtrer par produit</label>
-              <input type="text" id="filter-product" class="filter-input" data-column="1" placeholder="Rechercher produit...">
+              <input type="text" class="filter-input" data-column="1" placeholder="Rechercher produit...">
             </td>
             <td>
-              <label for="filter-brand" class="visually-hidden">Filtrer par marque</label>
-              <select id="filter-brand" class="filter-input" data-column="2">
+              <select class="filter-input" data-column="2">
                 <option value="">Toutes</option>
               </select>
             </td>
@@ -60,46 +56,43 @@
 
     <div class="contribution-form">
       <h2><i class="fas fa-plus-circle"></i> Proposer une alternative</h2>
-      <form id="contribution-form" method="POST">
+      <form id="contribution-form">
         <div class="form-group">
           <label for="product-name">Marque <span class="required">*</span></label>
-          <input type="text" id="product-name" required aria-required="true">
+          <input type="text" id="product-name" required>
         </div>
         
         <div class="form-group">
-          <label for="alt-name">Alternative <span class="required">*</span></label>
-          <input type="text" id="alt-name" required aria-required="true">
+          <label for="alt-name">Alternative</label>
+          <input type="text" id="alt-name">
         </div>
         
         <div class="form-group">
           <label for="alt-desc">Détails</label>
-          <textarea id="alt-desc" aria-describedby="desc-help"></textarea>
-          <small id="desc-help">(Optionnel) Décrivez cette alternative</small>
+          <textarea id="alt-desc"></textarea>
         </div>
         
         <div class="form-group">
-          <fieldset>
-            <legend>Note <span class="required">*</span></legend>
-            <div class="rating-options">
-              <label>
-                <input type="radio" name="rating" value="1" required aria-required="true">
-                <i class="fas fa-thumbs-up green"></i> Bonne
-              </label>
-              <label>
-                <input type="radio" name="rating" value="2">
-                <i class="fas fa-circle orange"></i> Moyenne
-              </label>
-              <label>
-                <input type="radio" name="rating" value="3">
-                <i class="fas fa-thumbs-down red"></i> Mauvaise
-              </label>
-            </div>
-          </fieldset>
+          <label>Note <span class="required">*</span></label>
+          <div class="rating-options">
+            <label>
+              <input type="radio" name="rating" value="1" required>
+              <i class="fas fa-thumbs-up green"></i> Bonne
+            </label>
+            <label>
+              <input type="radio" name="rating" value="2">
+              <i class="fas fa-circle orange"></i> Moyenne
+            </label>
+            <label>
+              <input type="radio" name="rating" value="3">
+              <i class="fas fa-thumbs-down red"></i> Mauvaise
+            </label>
+          </div>
         </div>
         
         <div class="form-group">
           <label for="alt-image">Image (URL)</label>
-          <input type="url" id="alt-image" placeholder="https://..." pattern="https://.*">
+          <input type="url" id="alt-image" placeholder="https://...">
         </div>
         
         <button type="submit"><i class="fas fa-paper-plane"></i> Soumettre</button>
@@ -112,6 +105,59 @@
   </footer>
 
   <script src="script2.js" defer></script>
+  <script>
+    // Script de filtrage conservé pour la fonctionnalité
+    function filterTable() {
+      const filters = Array.from(document.querySelectorAll('.filter-input')).map(input => ({
+        column: parseInt(input.dataset.column),
+        value: input.value.trim().toLowerCase()
+      }));
+
+      document.querySelectorAll('#results tbody tr').forEach(row => {
+        let visible = true;
+        
+        filters.forEach(filter => {
+          if(filter.value) {
+            const cell = row.cells[filter.column];
+            const cellContent = cell.textContent.toLowerCase().trim();
+            
+            if(filter.column === 2) {
+              if(cellContent !== filter.value) visible = false;
+            } else {
+              if(!cellContent.includes(filter.value)) visible = false;
+            }
+          }
+        });
+        
+        row.style.display = visible ? '' : 'none';
+      });
+
+      updateMarqueFilter();
+    }
+
+    function updateMarqueFilter() {
+      const marques = new Set();
+      const currentFilter = document.querySelector('.filter-input[data-column="2"]').value;
+      
+      document.querySelectorAll('#results tbody tr:not([style*="display: none"]) td:nth-child(3)').forEach(td => {
+        marques.add(td.textContent.trim().toLowerCase());
+      });
+
+      const select = document.querySelector('.filter-input[data-column="2"]');
+      const previousValue = select.value;
+      
+      select.innerHTML = '<option value="">Toutes</option>';
+      marques.forEach(marque => {
+        select.innerHTML += `<option value="${marque}" ${marque === previousValue ? 'selected' : ''}>${marque}</option>`;
+      });
+    }
+
+    document.querySelectorAll('.filter-input').forEach(input => {
+      input.addEventListener('input', filterTable);
+    });
+
+    updateMarqueFilter();
+  </script>
   <style>
     .visually-hidden {
       position: absolute;
