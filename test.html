@@ -42,16 +42,15 @@
 
   <main>
     <div class="search-container">
-      <div class="search-wrapper">
-        <label for="search" class="visually-hidden">Rechercher un produit</label>
-        <input type="text" id="search" placeholder="Ex: Coca-Cola, Nutella...">
-        <div id="selected-product-image"></div>
-        <button id="search-button" type="button" aria-label="Rechercher">
-          <i class="fas fa-search"></i>
-        </button>
-        <div id="autocomplete-results" class="autocomplete-results"></div>
+        <div class="search-wrapper" id="search-wrapper">
+          <input type="text" id="search" placeholder="Ex: Coca-Cola, Nutella..." autocomplete="off">
+          <div id="selected-product-image"></div>
+          <button id="search-button" type="button" aria-label="Rechercher">
+            <i class="fas fa-search"></i>
+          </button>
+          <div id="autocomplete-results" class="autocomplete-results"></div>
+        </div>
       </div>
-    </div>
 
     <div id="alert" role="alert" aria-live="polite"></div>
 
