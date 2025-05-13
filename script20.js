@@ -298,11 +298,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   
     function getRatingIcon(rating) {
-      switch(rating) {
-        case 'green': return '<i class="fas fa-thumbs-up green" aria-hidden="true"></i>';
-        case 'red': return '<i class="fas fa-thumbs-down red" aria-hidden="true"></i>';
-        default: return '<i class="fas fa-circle orange" aria-hidden="true"></i>';
-      }
+        return rating === 'green' 
+        ? '<i class="fas fa-thumbs-up"></i>'
+        : rating === 'red' 
+          ? '<i class="fas fa-thumbs-down"></i>'
+          : '<i class="fas fa-circle"></i>';
     }
   
     function getRatingBadge(rating) {
