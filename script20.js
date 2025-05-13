@@ -115,9 +115,9 @@ document.addEventListener('DOMContentLoaded', () => {
              alt="" 
              onerror="this.src='${CONFIG.placeholderImage}'">
         <span>${escapeHtml(item.name)}</span>
-        ${getRatingBadge(item.ban)} ddd "${item.ban}"
+        ${getRatingBadge(item.ban)} 
       `;
-  
+  //ddd "${item.ban}"
       div.addEventListener('click', () => selectAutocompleteItem(item));
       return div;
     }
@@ -298,11 +298,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   
     function getRatingIcon(rating) {
-        return rating === true 
-        ? '<i class="fas fa-thumbs-up"></i>'
-        : rating === false 
-          ? '<i class="fas fa-thumbs-down"></i>'
-          : '<i class="fas fa-circle">NULL</i>';
+        return rating === false 
+        ? '<span class="rating-badge green"><i class="fas fa-thumbs-up"></i></span>'
+        : rating === true 
+          ? '<span class="rating-badge red"><i class="fas fa-thumbs-down"></i></span>'
+          : '<span class="rating-badge orange"><i class="fas fa-circle"></i></span>';
     }
   
     function getRatingBadge(rating) {
