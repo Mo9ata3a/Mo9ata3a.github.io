@@ -263,10 +263,10 @@ document.addEventListener('DOMContentLoaded', () => {
       showAlert('Nom du produit requis', 'warning');
       return false;
     }
-    if (!formData.altName) {
+  /*   if (!formData.altName) {
       showAlert('Nom de l\'alternative requis', 'warning');
       return false;
-    }
+    } */
     if (formData.altImage && !isValidUrl(formData.altImage)) {
       showAlert('URL d\'image invalide', 'warning');
       return false;
