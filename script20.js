@@ -298,9 +298,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   
     function getRatingIcon(rating) {
-        return rating === 'green' 
+        return rating === true 
         ? '<i class="fas fa-thumbs-up"></i>'
-        : rating === 'red' 
+        : rating === false 
           ? '<i class="fas fa-thumbs-down"></i>'
           : '<i class="fas fa-circle"></i>';
     }
