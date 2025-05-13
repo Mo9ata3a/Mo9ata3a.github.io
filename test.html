@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://mon-api-three.vercel.app; script-src 'self'; style-src 'self' https://cdnjs.cloudflare.com; img-src 'self' https://images.unsplash.com https://placehold.co https://res.cloudinary.com; font-src 'self' https://cdnjs.cloudflare.com;">
+  <title>Alternatives Saines</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="styles2.css">
+</head>
+<body>
+  <header>
+    <h1>Recherche de Produits / Marques</h1>
+    <p class="subtitle">Trouvez des alternatives plus saines</p>
+  </header>
+
+  <main>
+    <div class="search-container">
+      <div class="search-wrapper">
+        <label for="search" class="visually-hidden">Rechercher un produit</label>
+        <input type="text" id="search" placeholder="Ex: Coca-Cola, Nutella...">
+        <div id="selected-product-image"></div>
+        <button id="search-button" aria-label="Rechercher">
+          <i class="fas fa-search"></i>
+        </button>
+        <div id="autocomplete-results" class="autocomplete-results"></div>
+      </div>
+    </div>
+
+    <div id="alert" role="alert" aria-live="polite"></div>
+
+    <div id="results-container">
+      <table id="results">
+        <caption class="visually-hidden">Liste des alternatives saines</caption>
+        <thead>
+          <tr>
+            <th scope="col">Image</th>
+            <th scope="col">Alternative</th>
+            <th scope="col">Marque</th>
+            <th scope="col">Note</th>
+          </tr>
+          <tr class="filters">
+            <td></td>
+            <td>
+              <label for="filter-product" class="visually-hidden">Filtrer par produit</label>
+              <input type="text" id="filter-product" class="filter-input" data-column="1" placeholder="Rechercher produit...">
+            </td>
+            <td>
+              <label for="filter-brand" class="visually-hidden">Filtrer par marque</label>
+              <select id="filter-brand" class="filter-input" data-column="2">
+                <option value="">Toutes</option>
+              </select>
+            </td>
+            <td></td>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="contribution-form">
+      <h2><i class="fas fa-plus-circle"></i> Proposer une alternative</h2>
+      <form id="contribution-form" method="POST">
+        <div class="form-group">
+          <label for="product-name">Marque <span class="required">*</span></label>
+          <input type="text" id="product-name" required aria-required="true">
+        </div>
+        
+        <div class="form-group">
+          <label for="alt-name">Alternative <span class="required">*</span></label>
+          <input type="text" id="alt-name" required aria-required="true">
+        </div>
+        
+        <div class="form-group">
+          <label for="alt-desc">Détails</label>
+          <textarea id="alt-desc" aria-describedby="desc-help"></textarea>
+          <small id="desc-help">(Optionnel) Décrivez cette alternative</small>
+        </div>
+        
+        <div class="form-group">
+          <fieldset>
+            <legend>Note <span class="required">*</span></legend>
+            <div class="rating-options">
+              <label>
+                <input type="radio" name="rating" value="1" required aria-required="true">
+                <i class="fas fa-thumbs-up green"></i> Bonne
+              </label>
+              <label>
+                <input type="radio" name="rating" value="2">
+                <i class="fas fa-circle orange"></i> Moyenne
+              </label>
+              <label>
+                <input type="radio" name="rating" value="3">
+                <i class="fas fa-thumbs-down red"></i> Mauvaise
+              </label>
+            </div>
+          </fieldset>
+        </div>
+        
+        <div class="form-group">
+          <label for="alt-image">Image (URL)</label>
+          <input type="url" id="alt-image" placeholder="https://..." pattern="https://.*">
+        </div>
+        
+        <button type="submit"><i class="fas fa-paper-plane"></i> Soumettre</button>
+      </form>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2023 Alternatives Saines</p>
+  </footer>
+
+  <script src="script2.js" defer></script>
+  <style>
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    .required {
+      color: red;
+    }
+  </style>
+</body>
+</html>
