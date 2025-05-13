@@ -302,13 +302,13 @@ document.addEventListener('DOMContentLoaded', () => {
         ? '<i class="fas fa-thumbs-up"></i>'
         : rating === false 
           ? '<i class="fas fa-thumbs-down"></i>'
-          : '<i class="fas fa-circle"></i>';
+          : '<i class="fas fa-circle">NULL</i>';
     }
   
     function getRatingBadge(rating) {
       switch(rating) {
-        case 'green': return '<span class="rating-badge green"><i class="fas fa-thumbs-up"></i></span>';
-        case 'red': return '<span class="rating-badge red"><i class="fas fa-thumbs-down"></i></span>';
+        case false : return '<span class="rating-badge green"><i class="fas fa-thumbs-up"></i></span>';
+        case true: return '<span class="rating-badge red"><i class="fas fa-thumbs-down"></i></span>';
         default: return '<span class="rating-badge orange"><i class="fas fa-circle"></i></span>';
       }
     }
