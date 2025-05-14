@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Recherche de Produits avec Statut Ban</title>
+<style>
+  body {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    margin: 1rem;
+    background: #fafafa;
+    color: #222;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  h1 {
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+  form {
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+  }
+  input[type="text"] {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+    border: 1px solid #bbb;
+    border-radius: 5px;
+    transition: border-color 0.3s;
+  }
+  input[type="text"]:focus {
+    outline: none;
+    border-color: #0078d7;
+    box-shadow: 0 0 5px #0078d7aa;
+  }
+  button {
+    padding: 0 1rem;
+    font-size: 1rem;
+    background-color: #0078d7;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  button:hover {
+    background-color: #005ea2;
+  }
+  #results {
+    width: 100%;
+    max-width: 800px;
+  }
+  .product {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+  }
+  .product-main {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .product-main img {
+    max-width: 120px;
+    max-height: 120px;
+    object-fit: contain;
+    border-radius: 6px;
+    background: #f5f5f5;
+    flex-shrink: 0;
+  }
+  .product-info {
+    flex: 1;
+    min-width: 180px;
+  }
+  .product-info h2 {
+    margin: 0 0 0.3rem 0;
+    font-size: 1.3rem;
+    word-break: break-word;
+  }
+  .product-info p {
+    margin: 0.2rem 0;
+    font-size: 1rem;
+    color: #444;
+  }
+  .ban-icon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+  .ban-icon svg {
+    width: 100%;
+    height: 100%;
+  }
+  .ban-true {
+    color: #d93025; /* rouge */
+  }
+  .ban-false {
+    color: #188038; /* vert */
+  }
+  .ban-null {
+    color: #f29900; /* orange */
+  }
+  .alternatives {
+    margin-top: 1rem;
+    border-top: 1px solid #ddd;
+    padding-top: 0.8rem;
+  }
+  .alternatives strong {
+    display: block;
+    margin-bottom: 0.6rem;
+    font-size: 1.1rem;
+    color: #555;
+  }
+  .alternative-item {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 0.8rem;
+  }
+  .alternative-item img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    border-radius: 6px;
+    background: #f5f5f5;
+    flex-shrink: 0;
+  }
+  .alt-info {
+    font-size: 1rem;
+    color: #333;
+    word-break: break-word;
+  }
+  .alt-info strong {
+    display: block;
+    margin-bottom: 0.2rem;
+  }
+  @media (max-width: 600px) {
+    .product-main {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .product-main img {
+      max-width: 100%;
+      height: auto;
+    }
+  }
+</style>
+</head>
+<body>
+
+<h1>Recherche de Produits</h1>
+
+<form id="search-form" aria-label="Formulaire de recherche de produits">
+  <input
+    type="text"
+    id="search-term"
+    placeholder="Rechercher un produit..."
+    aria-label="Recherche produit"
+    required
+    autocomplete="off"
+  />
+  <button type="submit" aria-label="Lancer la recherche">Rechercher</button>
+</form>
+
+<div id="results" aria-live="polite" aria-atomic="true"></div>
+
+<script>
+  const apiBase = 'https://mon-api-three.vercel.app/api/products/search/';
+
+  const searchForm = document.getElementById('search-form');
+  const searchTermInput = document.getElementById('search-term');
+  const resultsDiv = document.getElementById('results');
+
+  // Icônes SVG pour ban status
+  function getBanIcon(ban) {
+    if (ban === true) {
+      // Thumbs down rouge
+      return `
+        <svg aria-label="Produit banni" role="img" viewBox="0 0 24 24" fill="currentColor" class="ban-icon ban-true" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1 21h4V9H1v12zM23 10c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 2 7.59 8.59C7.22 8.95 7 9.45 7 10v9c0 1.1.9 2 2 2h7c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1z"/>
+        </svg>`;
+    } else if (ban === false) {
+      // Thumbs up vert
+      return `
+        <svg aria-label="Produit autorisé" role="img" viewBox="0 0 24 24" fill="currentColor" class="ban-icon ban-false" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1 21h4V9H1v12zM23 10c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 2 7.59 8.59C7.22 8.95 7 9.45 7 10v9c0 1.1.9 2 2 2h7c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1z"/>
+        </svg>`;
+    } else {
+      // Cercle orange (ban null)
+      return `
+        <svg aria-label="Statut inconnu" role="img" viewBox="0 0 24 24" fill="currentColor" class="ban-icon ban-null" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="10"/>
+        </svg>`;
+    }
+  }
+
+  // Affiche la liste des produits
+  function displayProducts(products) {
+    resultsDiv.innerHTML = '';
+    if (!products || products.length === 0) {
+      resultsDiv.textContent = 'Aucun produit trouvé.';
+      return;
+    }
+
+    products.forEach(product => {
+      const productEl = document.createElement('article');
+      productEl.className = 'product';
+      productEl.setAttribute('tabindex', '0');
+
+      // Produit principal
+      const mainDiv = document.createElement('div');
+      mainDiv.className = 'product-main';
+
+      // Image produit
+      const img = document.createElement('img');
+      img.src = product.photo_url || '';
+      img.alt = product.name || 'Image produit';
+      img.loading = 'lazy';
+
+      // Info produit
+      const infoDiv = document.createElement('div');
+      infoDiv.className = 'product-info';
+
+      const nameEl = document.createElement('h2');
+      nameEl.textContent = product.name || 'Nom inconnu';
+
+      const priceEl = document.createElement('p');
+      priceEl.textContent = `Prix : ${product.prix != null ? product.prix + " €" : "N/A"}`;
+
+      const catEl = document.createElement('p');
+      catEl.textContent = `Catégorie : ${product.categorie || "Non spécifiée"}`;
+
+      // Ban icon
+      const banDiv = document.createElement('div');
+      banDiv.className = 'ban-icon';
+      banDiv.innerHTML = getBanIcon(product.ban);
+
+      infoDiv.appendChild(nameEl);
+      infoDiv.appendChild(priceEl);
+      infoDiv.appendChild(catEl);
+
+      mainDiv.appendChild(img);
+      mainDiv.appendChild(infoDiv);
+      mainDiv.appendChild(banDiv);
+
+      productEl.appendChild(mainDiv);
+
+      // Alternatives
+      if (Array.isArray(product.alternatives) && product.alternatives.length > 0) {
+        const altDiv = document.createElement('section');
+        altDiv.className = 'alternatives';
+        altDiv.setAttribute('aria-label', `Alternatives pour ${product.name}`);
+
+        const altTitle = document.createElement('strong');
+        altTitle.textContent = 'Alternatives :';
+        altDiv.appendChild(altTitle);
+
+        product.alternatives.forEach(alt => {
+          const altItem = document.createElement('div');
+          altItem.className = 'alternative-item';
+
+          const altImg = document.createElement('img');
+          altImg.src = alt.photo_url || '';
+          altImg.alt = alt.name || 'Image alternative';
+          altImg.loading = 'lazy';
+
+          const altInfo = document.createElement('div');
+          altInfo.className = 'alt-info';
+
+          const altName = document.createElement('strong');
+          altName.textContent = alt.name || 'Nom inconnu';
+
+          const altPrice = document.createElement('span');
+          altPrice.textContent = alt.prix != null ? `${alt.prix} €` : 'N/A';
+
+          altInfo.appendChild(altName);
+          altInfo.appendChild(altPrice);
+
+          altItem.appendChild(altImg);
+          altItem.appendChild(altInfo);
+
+          altDiv.appendChild(altItem);
+        });
+
+        productEl.appendChild(altDiv);
+      }
+
+      resultsDiv.appendChild(productEl);
+    });
+  }
+
+  // Requête API et affichage
+  async function searchProducts(term) {
+    resultsDiv.textContent = 'Chargement...';
+    try {
+      const res = await fetch(apiBase + encodeURIComponent(term));
+      if (!res.ok) throw new Error('Erreur réseau');
+      const data = await res.json();
+      displayProducts(data);
+    } catch (e) {
+      resultsDiv.textContent = 'Erreur lors de la récupération des produits.';
+      console.error(e);
+    }
+  }
+
+  searchForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const term = searchTermInput.value.trim();
+    if (term.length === 0) return;
+    searchProducts(term);
+  });
+</script>
+
+</body>
+</html>

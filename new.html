@@ -3,63 +3,107 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Recherche Produits</title>
+  <title>Recherche de Produits</title>
   <style>
     body {
-      font-family: sans-serif;
-      background-color: #f4f4f4;
-      padding: 2rem;
+      font-family: Arial, sans-serif;
+      padding: 1rem;
+      margin: 0;
+      background-color: #f5f5f5;
     }
+
     h1 {
       text-align: center;
+      margin-bottom: 1rem;
     }
-    #searchBar {
+
+    #search-container {
       display: flex;
-      flex-wrap: wrap;
       justify-content: center;
-      gap: 1rem;
       margin-bottom: 2rem;
     }
-    #term, #category, #searchBtn {
+
+    #search-input {
+      width: 80%;
+      max-width: 400px;
       padding: 10px;
-      font-size: 16px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
     }
+
     #results {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      display: flex;
+      flex-direction: column;
       gap: 1.5rem;
     }
-    .card {
-      background: #fff;
-      border-radius: 8px;
+
+    .product-card {
+      background-color: white;
+      border-radius: 10px;
       padding: 1rem;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
-    .card img {
-      width: 100%;
-      border-radius: 6px;
-      margin-bottom: 10px;
+
+    .product-main {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
     }
-    .alt {
+
+    .product-main img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .product-details {
+      flex: 1;
+    }
+
+    .product-details h3 {
+      margin: 0;
+      font-size: 1.2rem;
+    }
+
+    .product-details p {
+      margin: 5px 0;
+      color: #555;
+    }
+
+    .alternatives {
       margin-top: 1rem;
       padding-top: 0.5rem;
-      border-top: 1px solid #ccc;
+      border-top: 1px solid #ddd;
     }
-    .alt-item {
+
+    .alternative-list {
       display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 0.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
     }
-    .alt-item img {
-      width: 50px;
-      height: auto;
+
+    .alt-card {
+      background-color: #fafafa;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      padding: 0.5rem;
+      width: 120px;
+      text-align: center;
+    }
+
+    .alt-card img {
+      width: 100%;
+      height: 80px;
+      object-fit: cover;
       border-radius: 4px;
     }
-    .error {
-      color: red;
-      text-align: center;
-      margin-top: 1rem;
+
+    .alt-card p {
+      margin: 4px 0;
+      font-size: 0.9rem;
     }
   </style>
 </head>
@@ -67,86 +111,74 @@
 
   <h1>Recherche de Produits</h1>
 
-  <div id="searchBar">
-    <input type="text" id="term" placeholder="Nom du produit..." />
-    <select id="category">
-      <option value="">Toutes les catégories</option>
-   
-      <!-- Ajoute d'autres catégories ici -->
-    </select>
-    <button id="searchBtn">Rechercher</button>
+  <div id="search-container">
+    <input type="text" id="search-input" placeholder="Tapez un produit..." />
   </div>
 
   <div id="results"></div>
-  <div class="error" id="errorMsg"></div>
 
   <script>
-    document.getElementById('searchBtn').addEventListener('click', () => {
-      const term = document.getElementById('term').value.trim();
-	   const API_URL = 'https://mon-api-three.vercel.app';
-      const category = document.getElementById('category').value;
-      const results = document.getElementById('results');
-      const errorMsg = document.getElementById('errorMsg');
-      
-      results.innerHTML = '';
-      errorMsg.textContent = '';
+    const searchInput = document.getElementById('search-input');
+    const resultsContainer = document.getElementById('results');
 
-      if (!term) {
-        errorMsg.textContent = 'Veuillez entrer un terme de recherche.';
+    searchInput.addEventListener('keyup', async (e) => {
+      const term = e.target.value.trim();
+      if (term.length < 2) {
+        resultsContainer.innerHTML = '';
         return;
       }
 
-      fetch(`${API_URL}/api/products/search/${encodeURIComponent(term)}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.error) {
-            errorMsg.textContent = data.error;
-            return;
-          }
+      try {
+        const res = await fetch(`https://mon-api-three.vercel.app/api/products/search/${encodeURIComponent(term)}`);
+        const products = await res.json();
 
-          const filtered = category ? data.filter(p => p.categorie === category) : data;
-          if (!filtered.length) {
-            errorMsg.textContent = "Aucun produit trouvé.";
-            return;
-          }
+        resultsContainer.innerHTML = '';
 
-          filtered.forEach(product => {
-            const card = document.createElement('div');
-            card.className = 'card';
+        products.forEach(product => {
+          const card = document.createElement('div');
+          card.className = 'product-card';
 
-            card.innerHTML = `
+          card.innerHTML = `
+            <div class="product-main">
               <img src="${product.photo_url}" alt="${product.name}" />
-              <h3>${product.name}</h3>
-              <p><strong>Prix :</strong> ${product.prix?.trim() || "N/A"} DH</p>
-              <p><strong>Catégorie :</strong> ${product.categorie?.replace(/^\d+-/, '') || 'Inconnue'}</p>
-            `;
+              <div class="product-details">
+                <h3>${product.name}</h3>
+                <p><strong>Prix :</strong> ${product.prix} DH</p>
+                <p><strong>Catégorie :</strong> ${product.categorie}</p>
+              </div>
+            </div>
+          `;
 
-            if (Array.isArray(product.alternatives) && product.alternatives.length > 0) {
-              const altHTML = product.alternatives.map(alt => `
-                <div class="alt-item">
-                  <img src="${alt.photo_url}" alt="${alt.name}" />
-                  <div>
-                    <strong>${alt.name}</strong><br />
-                    Prix : ${alt.prix?.trim() || 'N/A'} DH
-                  </div>
-                </div>
-              `).join('');
+          if (product.alternatives && product.alternatives.length > 0) {
+            const altContainer = document.createElement('div');
+            altContainer.className = 'alternatives';
+            altContainer.innerHTML = '<h4>Alternatives :</h4>';
 
-              card.innerHTML += `
-                <div class="alt">
-                  <h4>Alternatives :</h4>
-                  ${altHTML}
-                </div>
+            const altList = document.createElement('div');
+            altList.className = 'alternative-list';
+
+            product.alternatives.forEach(alt => {
+              const altCard = document.createElement('div');
+              altCard.className = 'alt-card';
+              altCard.innerHTML = `
+                <img src="${alt.photo_url}" alt="${alt.name}" />
+                <p><strong>${alt.name}</strong></p>
+                <p>${alt.prix} DH</p>
               `;
-            }
+              altList.appendChild(altCard);
+            });
 
-            results.appendChild(card);
-          });
-        })
-        .catch(err => {
-          errorMsg.textContent = 'Erreur lors de la recherche.';
-          console.error(err);
+            altContainer.appendChild(altList);
+            card.appendChild(altContainer);
+          }
+
+          resultsContainer.appendChild(card);
         });
+
+      } catch (error) {
+        console.error('Erreur lors de la recherche :', error);
+        resultsContainer.innerHTML = `<p>Une erreur est survenue lors de la recherche.</p>`;
+      }
     });
   </script>
 
