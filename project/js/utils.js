@@ -23,7 +23,7 @@ export function formatprix(prix) {
   // Format the prix with the Euro symbol
   return new Intl.NumberFormat('fr-FR', {
     style: 'currency',
-    currency: 'DH',
+    currency: 'MAD',
     minimumFractionDigits: 2
   }).format(numprix);
 }
