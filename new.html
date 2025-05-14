@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Recherche de Produits</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2rem;
+      background-color: #f4f4f4;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    #searchBar {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 2rem;
+    }
+    #term {
+      width: 300px;
+      padding: 10px;
+      font-size: 16px;
+    }
+    #searchBtn {
+      padding: 10px 15px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #results {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+    .card {
+      background-color: white;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .alt {
+      margin-top: 0.5rem;
+      font-size: 14px;
+      color: #666;
+    }
+    .error {
+      color: red;
+      text-align: center;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Recherche de Produits</h1>
+  <div id="searchBar">
+    <input type="text" id="term" placeholder="Entrez un produit..." />
+    <button id="searchBtn">Rechercher</button>
+  </div>
+
+  <div id="results"></div>
+  <div class="error" id="errorMsg"></div>
+
+  <script>
+    document.getElementById('searchBtn').addEventListener('click', () => {
+      const term = document.getElementById('term').value.trim();
+      const resultsDiv = document.getElementById('results');
+      const errorDiv = document.getElementById('errorMsg');
+      resultsDiv.innerHTML = '';
+      errorDiv.textContent = '';
+
+      if (!term) {
+        errorDiv.textContent = 'Veuillez entrer un terme de recherche.';
+        return;
+      }
+
+      fetch(`/api/products/search/${encodeURIComponent(term)}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.error) {
+            errorDiv.textContent = data.error;
+            return;
+          }
+
+          data.forEach(product => {
+            const card = document.createElement('div');
+            card.className = 'card';
+
+            card.innerHTML = `
+              <h3>${product.name}</h3>
+              <p>${product.description || 'Pas de description disponible.'}</p>
+            `;
+
+            if (product.alternatives?.length) {
+              const altList = product.alternatives.map(a => `<li>${a.name}</li>`).join('');
+              card.innerHTML += `<div class="alt"><strong>Alternatives :</strong><ul>${altList}</ul></div>`;
+            }
+
+            resultsDiv.appendChild(card);
+          });
+        })
+        .catch(err => {
+          errorDiv.textContent = 'Une erreur est survenue lors de la recherche.';
+          console.error(err);
+        });
+    });
+  </script>
+
+</body>
+</html>
