@@ -66,6 +66,7 @@
   <script>
     document.getElementById('searchBtn').addEventListener('click', () => {
       const term = document.getElementById('term').value.trim();
+	   const API_URL = 'https://mon-api-three.vercel.app';
       const resultsDiv = document.getElementById('results');
       const errorDiv = document.getElementById('errorMsg');
       resultsDiv.innerHTML = '';
@@ -76,7 +77,7 @@
         return;
       }
 
-      fetch(`/api/products/search/${encodeURIComponent(term)}`)
+      fetch(`${API_URL}/api/products/search/${encodeURIComponent(term)}`)
         .then(res => res.json())
         .then(data => {
           if (data.error) {
