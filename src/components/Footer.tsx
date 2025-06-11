@@ -119,7 +119,7 @@ export const Footer: React.FC = () => {
 
         <div className="border-t border-gray-800 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center">
           <p className="text-sm text-gray-500">
-            © {new Date().getFullYear()} Badayli. Tous droits réservés.
+            © {new Date().getFullYear()} B.L.A.S.T. aucun droit réservé.
           </p>
           {/* <div className="mt-4 md:mt-0">
             <ul className="flex space-x-4 text-xs text-gray-500">
